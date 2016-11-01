@@ -1,53 +1,51 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.EnterpriseServices;
-using System.Linq;
-using System.ServiceModel.Channels;
-using System.Text;
-using System.Threading.Tasks;
+using OnlineShop.Core;
 using OnlineShop.Core.Data;
 
 namespace OnlineShop.Infrastructure.Data
 {
-    public class UnitOfWorkRepository : IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
-        private ITransaction transaction;
+        private readonly ShopContext context;
 
-        private IRoleRepository roleRepository;
-        private IProductRepository productRepository;
-        private IUserRepository userRepository;
-        public ISession Session { get; private set; }
+        private Repository<Role> roleRepository;
+        private Repository<Product> productRepository;
+        private Repository<User> userRepository;
 
-        public UnitOfWorkRepository()
+        public Repository<Role> Roles => roleRepository ?? (roleRepository = new Repository<Role>(context));
+
+        public Repository<Product> Products => productRepository ?? (productRepository = new Repository<Product>(context));
+
+        public Repository<User> Users => userRepository ?? (userRepository = new Repository<User>(context));
+
+        public UnitOfWork()
         {
-                
-        }
-
-        public IRoleRepository Roles
-        {
-            get
-            {
-                if (roleRepository == null)
-                {
-                    roleRepository = new RoleRepository();
-                }
-                return roleRepository;
-            }
+            context = new ShopContext();
         }
 
         public void Commit()
         {
-            throw new NotImplementedException();
+            context.SaveChanges();
         }
 
-        public void BeginTransaction()
+        private bool disposed = false;
+
+        protected virtual void Dispose(bool disposing)
         {
-            throw new NotImplementedException();
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    context.Dispose();
+                }
+            }
+            disposed = true;
         }
 
-        public void Rollback()
+        public void Dispose()
         {
-            throw new NotImplementedException();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

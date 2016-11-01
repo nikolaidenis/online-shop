@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
 
 namespace OnlineShop.Infrastructure.Data
 {
-    public class RoleRepository : Repository<Role>, IRoleRepository
+    public class RoleRepository : IRoleRepository
     {
-        public Task<IEnumerable<Role>> GetRoles()
+        private readonly UnitOfWork unitOfWork;
+        public RoleRepository() 
         {
-            return Context
+            unitOfWork = new UnitOfWork();
+        }
+
+        public async Task<IEnumerable<Role>> GetRoles()
+        {
+            throw new NotImplementedException();
         }
     }
 }

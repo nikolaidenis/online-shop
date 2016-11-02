@@ -1,0 +1,12 @@
+D:\projects\OnlineShop\OnlineShop.Infrastructure\obj\Debug\OnlineShop.Infrastructure.csprojResolveAssemblyReference.cache
+D:\projects\OnlineShop\OnlineShop.Infrastructure\bin\Debug\OnlineShop.Infrastructure.dll.config
+D:\projects\OnlineShop\OnlineShop.Infrastructure\bin\Debug\OnlineShop.Infrastructure.dll
+D:\projects\OnlineShop\OnlineShop.Infrastructure\bin\Debug\OnlineShop.Infrastructure.pdb
+D:\projects\OnlineShop\OnlineShop.Infrastructure\bin\Debug\EntityFramework.dll
+D:\projects\OnlineShop\OnlineShop.Infrastructure\bin\Debug\EntityFramework.SqlServer.dll
+D:\projects\OnlineShop\OnlineShop.Infrastructure\bin\Debug\OnlineShop.Core.dll
+D:\projects\OnlineShop\OnlineShop.Infrastructure\bin\Debug\OnlineShop.Core.pdb
+D:\projects\OnlineShop\OnlineShop.Infrastructure\bin\Debug\EntityFramework.xml
+D:\projects\OnlineShop\OnlineShop.Infrastructure\bin\Debug\EntityFramework.SqlServer.xml
+D:\projects\OnlineShop\OnlineShop.Infrastructure\obj\Debug\OnlineShop.Infrastructure.dll
+D:\projects\OnlineShop\OnlineShop.Infrastructure\obj\Debug\OnlineShop.Infrastructure.pdb

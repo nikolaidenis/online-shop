@@ -1,0 +1,11 @@
+﻿
+.square {
+    margin: 20px;
+    background-color: #ccc;
+    height: 150px;
+    width: 150px;
+    display: inline-block;
+    text-align: center;
+    padding-top: 30px;
+    line-height:100%;
+}

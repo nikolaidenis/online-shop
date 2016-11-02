@@ -1,0 +1,14 @@
+﻿<div ng-controller="OperationsController">
+    <div class="square" ng-repeat="product in products">
+        {{product.Name}}
+        {{product.Cost}}
+        <input type="button" value="Buy"/>
+    </div>
+    <hr/>
+    <h2>Portfolio:</h2>
+    <p ng-repeat="operation in operations">
+        {{operation.UserId}}
+        {{operation.ProductId}}
+        {{operation.Amount}}
+    </p>
+</div>

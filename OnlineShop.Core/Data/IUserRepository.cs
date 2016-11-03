@@ -7,8 +7,10 @@ namespace OnlineShop.Core.Data
     {
         Task<IEnumerable<User>> GetUsers();
         Task<User> GetUser(int id);
+        Task<User> ModifyUser(int id);
         Task<bool> IsUserExist(string userId);
         Task<int> CreateUser(User obj);
         Task UpdateUser(User user);
+        Task SaveChanges();
     }
 }

@@ -11,8 +11,8 @@ namespace OnlineShop.Core.Data
         Task<IEnumerable<T>> GetAll();
         Task<T> Create(T model);
         Task Delete(T id);
-        Task<T> Get(int id);
-        Task<T> Find(Expression<Func<T, bool>> expression);
+        Task Update(T obj);
+        Task<T> Get(Expression<Func<T, bool>> expression);
         IQueryable<T> GetAllAsQueryable();
     }
 }

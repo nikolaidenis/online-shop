@@ -20,11 +20,12 @@ namespace OnlineShop.Infrastructure.Data
         public async Task MakePurchase(Operation operation)
         {
             await _unitOfWork.Operations.Create(operation);
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task<Operation> GetOperation(int id)
         {
-            return await _unitOfWork.Operations.Get(id);
+            return await _unitOfWork.Operations.Get(op => op.Id == id);
         }
 
         public Task<Operation> GetOperation(int id, int userId)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
 
@@ -25,6 +26,11 @@ namespace OnlineShop.Infrastructure.Data
         public UnitOfWork()
         {
             Context = new OnlineShopEntities();
+        }
+
+        public async Task CommitAsync()
+        {
+            await Context.SaveChangesAsync();
         }
 
         public void Commit()

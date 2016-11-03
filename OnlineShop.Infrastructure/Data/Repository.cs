@@ -27,20 +27,20 @@ namespace OnlineShop.Infrastructure.Data
             return _dbSet.Add(model);
         }
 
-        public async Task<T> Get(int id)
-        {
-            return await _dbSet.FindAsync(id);
-        }
-
-        public async Task<T> Find(Expression<Func<T,bool>> expression)
+        public async Task<T> Get(Expression<Func<T, bool>> expression)
         {
             return await _dbSet.FirstOrDefaultAsync(expression);
-        } 
-
+        }
+        
         public async Task Delete(T obj)
         {
             _context.Entry(obj).State = EntityState.Deleted;
         }
+
+        public async Task Update(T obj)
+        {
+            _context.Entry(obj).State = EntityState.Modified;
+        } 
 
         public async Task<IEnumerable<T>> GetAll()
         {

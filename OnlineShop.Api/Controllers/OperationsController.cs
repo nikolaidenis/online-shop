@@ -44,6 +44,7 @@ namespace OnlineShop.Api.Controllers
                     $"Could not make purcahse: {e.Message}");
             }
 
+
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 

@@ -27,16 +27,9 @@
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Name" Type="nchar" MaxLength="20" />
   </EntityType>
-  <!--Errors Found During Generation:
-warning 6002: The table/view 'OnlineShop.dbo.Users' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
   <EntityType Name="Users">
     <Key>
       <PropertyRef Name="Id" />
-      <PropertyRef Name="UserName" />
-      <PropertyRef Name="Password" />
-      <PropertyRef Name="RoleId" />
-      <PropertyRef Name="Balance" />
-      <PropertyRef Name="IsBlocked" />
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="UserName" Type="nvarchar" MaxLength="60" Nullable="false" />
@@ -63,18 +56,7 @@ warning 6002: The table/view 'OnlineShop.dbo.Users' does not have a primary key 
     <EntitySet Name="Operations" EntityType="Self.Operations" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Products" EntityType="Self.Products" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
-    <EntitySet Name="Users" EntityType="Self.Users" store:Type="Tables" store:Schema="dbo">
-      <DefiningQuery>SELECT 
-    [Users].[Id] AS [Id], 
-    [Users].[UserName] AS [UserName], 
-    [Users].[Password] AS [Password], 
-    [Users].[PasswordSalt] AS [PasswordSalt], 
-    [Users].[PasswordHash] AS [PasswordHash], 
-    [Users].[RoleId] AS [RoleId], 
-    [Users].[Balance] AS [Balance], 
-    [Users].[IsBlocked] AS [IsBlocked]
-    FROM [dbo].[Users] AS [Users]</DefiningQuery>
-    </EntitySet>
+    <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
     <AssociationSet Name="FK_Users_Roles" Association="Self.FK_Users_Roles">
       <End Role="Roles" EntitySet="Roles" />
       <End Role="Users" EntitySet="Users" />

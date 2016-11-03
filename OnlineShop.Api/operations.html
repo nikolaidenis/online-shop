@@ -2,13 +2,21 @@
     <div class="square" ng-repeat="product in products">
         {{product.Name}}
         {{product.Cost}}
-        <input type="button" value="Buy"/>
+        <input type="button" value="Buy" ng-click="purchase(product)"/>
     </div>
     <hr/>
     <h2>Portfolio:</h2>
+    <p>{{user.UserName}}</p>
+    Balance:
+    <p>{{user.Balance}}</p>
+    <p ng-repeat="product in products">
+        {{product.Name}} - {{countOperations(product.Id).length}} - <input type="button" value="Sell" ng-click="sellLastProduct(product.Id)"/>
+    </p>
+    <input type="button" value="Fill balance" ng-click="chargeUserBalance(user.Id)"/>
     <p ng-repeat="operation in operations">
         {{operation.UserId}}
         {{operation.ProductId}}
         {{operation.Amount}}
     </p>
+
 </div>

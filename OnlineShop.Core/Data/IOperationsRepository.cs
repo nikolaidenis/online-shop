@@ -13,6 +13,7 @@ namespace OnlineShop.Core.Data
         Task<Operation> GetOperation(int id);
         Task<Operation> GetOperation(int id, int userId);
         Task<IEnumerable<Operation>> GetOperations(int userId);
+        Task<IEnumerable<Operation>> GetOperations(int userId, int page, int rowsCount);
         Task MakeSale(int purchaseId);
     }
 }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
+using Microsoft.Practices.Unity;
 using OnlineShop.Api.Models;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
@@ -15,11 +17,12 @@ namespace OnlineShop.Api.Controllers
 {
     public class OperationsController : ApiController
     {
-        public readonly IOperationsRepository Repository;
+        [Dependency]
+        public IOperationsRepository Repository { get; }
 
-        public OperationsController()
+        public OperationsController(IOperationsRepository repository)
         {
-            Repository = new OperationsRepository();
+            Repository = repository;
         }
 
         [Route("api/operation_purchase")]
@@ -62,19 +65,31 @@ namespace OnlineShop.Api.Controllers
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
-        [Route("api/operation/{userId:int}")]
-        public async Task<HttpResponseMessage> GetOperations(int userId)
+        [Route("api/operation/{userId:int}/{pageNum:int}/{rowsCount:int}")]
+        public async Task<HttpResponseMessage> GetOperations(int userId, int pageNum = 1, int rowsCount = 5)
         {
             if (userId <= 0)
             {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "User is not exist");
             }
 
-            var listOperations = await Repository.GetOperations(userId);
+            var listOperations = await Repository.GetOperations(userId, pageNum, rowsCount);
             Mapper.Initialize(expression => expression.CreateMap(typeof(Operation), typeof(OperationModel)));
             var operationsModel = Mapper.Map<IEnumerable<Operation>, List<OperationModel>>(listOperations);
 
             return Request.CreateResponse(HttpStatusCode.OK, operationsModel);
+        }
+
+        [Route("api/operation/count_rows/{userId:int}")]
+        public async Task<HttpResponseMessage> GetRows(int userId)
+        {
+            if (userId <= 0)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "User does not exist");
+            }
+
+            var rows = await Repository.GetOperations(userId);
+            return Request.CreateResponse(HttpStatusCode.OK, rows);
         }
     }
 }

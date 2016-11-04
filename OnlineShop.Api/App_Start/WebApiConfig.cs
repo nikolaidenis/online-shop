@@ -1,4 +1,6 @@
 ﻿using System.Web.Http;
+using Microsoft.Practices.Unity.Configuration;
+using OnlineShop.Api.App_Start;
 
 namespace OnlineShop.Api
 {
@@ -22,6 +24,9 @@ namespace OnlineShop.Api
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new {id = RouteParameter.Optional}
                 );
+
+            var container = UnityConfig.GetConfiguredContainer();
+            config.DependencyResolver = new UnityResolver(container);
         }
     }
 }

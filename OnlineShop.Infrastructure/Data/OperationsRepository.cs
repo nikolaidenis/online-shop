@@ -12,9 +12,9 @@ namespace OnlineShop.Infrastructure.Data
     {
         private readonly UnitOfWork _unitOfWork;
 
-        public OperationsRepository()
+        public OperationsRepository(DbContext context)
         {
-            _unitOfWork = new UnitOfWork();
+            _unitOfWork = new UnitOfWork(context);
         }
 
         public async Task MakePurchase(Operation operation)
@@ -37,6 +37,13 @@ namespace OnlineShop.Infrastructure.Data
         {
             var list = _unitOfWork.Operations.GetAllAsQueryable();
             return await list.Where(p => p.UserID == userId).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Operation>> GetOperations(int userId, int page, int rowsCount)
+        {
+            var list = _unitOfWork.Operations.GetAllAsQueryable();
+            return await list.Where(p => p.UserID == userId).OrderBy(p=>p.Id)
+                .Skip(rowsCount*page).Take(rowsCount).ToListAsync();
         }
 
         public async Task MakeSale(int purchaseId)

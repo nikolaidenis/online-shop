@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Threading.Tasks;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
@@ -7,7 +8,7 @@ namespace OnlineShop.Infrastructure.Data
 {
     public class UnitOfWork : IUnitOfWork
     {
-        internal readonly OnlineShopEntities Context;
+        internal readonly DbContext Context;
 
         private Repository<Role> _roleRepository;
         private Repository<Product> _productRepository;
@@ -23,9 +24,9 @@ namespace OnlineShop.Infrastructure.Data
         public Repository<Operation> Operations
             => _operationRepository ?? (_operationRepository = new Repository<Operation>(Context)); 
 
-        public UnitOfWork()
+        public UnitOfWork(DbContext context)
         {
-            Context = new OnlineShopEntities();
+            Context = context;
         }
 
         public async Task CommitAsync()

@@ -11,9 +11,9 @@ namespace OnlineShop.Infrastructure.Data
     {
         private readonly UnitOfWork _unitOfWork;
 
-        public UserRepository()
+        public UserRepository(DbContext context)
         {
-            _unitOfWork = new UnitOfWork();
+            _unitOfWork = new UnitOfWork(context);
         }
 
         public async Task<IEnumerable<User>> GetUsers()

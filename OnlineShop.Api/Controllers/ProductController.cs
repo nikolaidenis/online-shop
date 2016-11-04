@@ -17,7 +17,7 @@ namespace OnlineShop.Api.Controllers
 
         public ProductController()
         {
-            _repository = new ProductRepository();
+//            _repository = new ProductRepository();
         }
 
         public async Task<HttpResponseMessage> Get()

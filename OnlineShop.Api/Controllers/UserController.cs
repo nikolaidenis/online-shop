@@ -16,7 +16,7 @@ namespace OnlineShop.Api.Controllers
 
         public UserController()
         {
-            Repository = new UserRepository();
+//            Repository = new UserRepository();
         }
 
         [Route("api/user_debit_balance")]

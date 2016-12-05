@@ -3,26 +3,28 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
+using Microsoft.Practices.Unity;
 using OnlineShop.Api.Models;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
-using OnlineShop.Infrastructure.Data;
 
 namespace OnlineShop.Api.Controllers
 {
     public class UserController : ApiController
     {
-        public readonly IUserRepository Repository;
+        [Dependency]
+        private IUnitOfWork UnitOfWork { get; }
 
-        public UserController()
+        public UserController(IUnitOfWork unitOfWork)
         {
-//            Repository = new UserRepository();
+            UnitOfWork = unitOfWork;
         }
 
+        [Authorize]
         [Route("api/user_debit_balance")]
         public async Task<HttpResponseMessage> DebitUserBalance(PaymentModel payment)
         {
-            var user = await Repository.GetUser(payment.UserId);
+            var user = await UnitOfWork.Users.GetUser(payment.UserId);
             var balanceAfter = user.Balance - payment.Amount;
 
             if (balanceAfter < 0)
@@ -30,7 +32,7 @@ namespace OnlineShop.Api.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Payment invalid: balance < amount");
             }
             user.Balance = balanceAfter;
-            await Repository.SaveChanges();
+            await UnitOfWork.Users.SaveChanges();
 
             return Request.CreateResponse(HttpStatusCode.OK);
         }
@@ -38,8 +40,8 @@ namespace OnlineShop.Api.Controllers
         [Route("api/user_charge_balance")]
         public async Task<HttpResponseMessage> ChargeUserBalance(PaymentModel payment)
         {
-            (await Repository.GetUser(payment.UserId)).Balance += payment.Amount;
-            await Repository.SaveChanges();
+            (await UnitOfWork.Users.GetUser(payment.UserId)).Balance += payment.Amount;
+            await UnitOfWork.Users.SaveChanges();
 
             return Request.CreateResponse(HttpStatusCode.OK);
         }
@@ -47,10 +49,16 @@ namespace OnlineShop.Api.Controllers
         [Route("api/user_info/{userId:int}")]
         public async Task<HttpResponseMessage> GetUserData(int userId)
         {
-            var obj = await Repository.GetUser(userId);
+            var obj = await UnitOfWork.Users.GetUser(userId);
             Mapper.Initialize(expression => expression.CreateMap(typeof(User), typeof(UserModel)));
             var model = Mapper.Map<User, UserModel>(obj);
             return Request.CreateResponse(HttpStatusCode.OK, model);
         }
+
+//        [Route("api/user_auth")]
+//        public async Task<HttpResponseMessage> AuthenticateUser(AuthenticationModel model)
+//        {
+//            
+//        }
     }
 }

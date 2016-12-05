@@ -13,8 +13,7 @@ namespace OnlineShop.Infrastructure.Data
     {
         private readonly DbContext _context;
         private readonly DbSet<T> _dbSet;
-
-        public Repository():this(new OnlineShopEntities()) { } 
+        
 
         public Repository(DbContext context)
         {
@@ -24,7 +23,19 @@ namespace OnlineShop.Infrastructure.Data
 
         public async Task<T> Create(T model)
         {
-            return _dbSet.Add(model);
+            _dbSet.Add(model);
+            await CommitAsync();
+            return model;
+        }
+
+        public async Task CommitAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public void Commit()
+        {
+            _context.SaveChanges();
         }
 
         public async Task<T> Get(Expression<Func<T, bool>> expression)

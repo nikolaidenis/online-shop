@@ -9,33 +9,31 @@ namespace OnlineShop.Infrastructure.Data
 {
     public class UserRepository: Repository<User>,IUserRepository
     {
-        private readonly UnitOfWork _unitOfWork;
 
-        public UserRepository(DbContext context)
+        public UserRepository(DbContext context):base(context)
         {
-            _unitOfWork = new UnitOfWork(context);
         }
 
         public async Task<IEnumerable<User>> GetUsers()
         {
-            return await _unitOfWork.Users.GetAll();
+            return await GetAll();
         }
 
         public async Task<User> GetUser(int id)
         {
-            return await _unitOfWork.Users.Get(user => user.Id == id);
+            return await Get(user => user.Id == id);
         }
 
         public async Task<User> ModifyUser(int id)
         {
-            var user = await _unitOfWork.Users.Get(usr => usr.Id == id);
-            await _unitOfWork.Users.Update(user);
+            var user = await Get(usr => usr.Id == id);
+            await Update(user);
             return user;
         }
 
         public async Task<bool> IsUserExist(string username)
         {
-            return (await _unitOfWork.Users.Get(user => user.UserName == username)) != null;
+            return (await Get(user => user.UserName == username)) != null;
         }
 
         public Task<int> CreateUser(User obj)
@@ -45,12 +43,18 @@ namespace OnlineShop.Infrastructure.Data
 
         public async Task UpdateUser(User user)
         {
-            await _unitOfWork.Users.Update(user);
+            await Update(user);
         }
 
         public async Task SaveChanges()
         {
-            await _unitOfWork.CommitAsync();
-        } 
+            await CommitAsync();
+        }
+
+        public async Task<int> AuthenticateUser(string login, string password)
+        {
+            var user = await Get(usr => usr.UserName == login && usr.Password == password);
+            return user?.Id ?? 0;
+        }
     }
 }

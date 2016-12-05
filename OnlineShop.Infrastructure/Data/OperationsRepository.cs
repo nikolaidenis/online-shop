@@ -8,24 +8,22 @@ using OnlineShop.Core.Data;
 
 namespace OnlineShop.Infrastructure.Data
 {
-    public class OperationsRepository : IOperationsRepository
+    public class OperationsRepository : Repository<Operation>, IOperationsRepository
     {
-        private readonly UnitOfWork _unitOfWork;
 
-        public OperationsRepository(DbContext context)
+        public OperationsRepository(DbContext context):base(context)
         {
-            _unitOfWork = new UnitOfWork(context);
         }
 
         public async Task MakePurchase(Operation operation)
         {
-            await _unitOfWork.Operations.Create(operation);
-            await _unitOfWork.CommitAsync();
+            await Create(operation);
+            await CommitAsync();
         }
 
         public async Task<Operation> GetOperation(int id)
         {
-            return await _unitOfWork.Operations.Get(op => op.Id == id);
+            return await Get(op => op.Id == id);
         }
 
         public Task<Operation> GetOperation(int id, int userId)
@@ -35,21 +33,21 @@ namespace OnlineShop.Infrastructure.Data
 
         public async Task<IEnumerable<Operation>> GetOperations(int userId)
         {
-            var list = _unitOfWork.Operations.GetAllAsQueryable();
-            return await list.Where(p => p.UserID == userId).ToListAsync();
+            var list = GetAllAsQueryable();
+            return await list.Where(p => p.UserID == userId).ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<IEnumerable<Operation>> GetOperations(int userId, int page, int rowsCount)
         {
-            var list = _unitOfWork.Operations.GetAllAsQueryable();
+            var list = GetAllAsQueryable();
             return await list.Where(p => p.UserID == userId).OrderBy(p=>p.Id)
-                .Skip(rowsCount*page).Take(rowsCount).ToListAsync();
+                .Skip(rowsCount*page).Take(rowsCount).ToListAsync().ConfigureAwait(false);
         }
 
         public async Task MakeSale(int purchaseId)
         {
             (await GetOperation(purchaseId)).IsSelled = true;
-            _unitOfWork.Commit();
+            Commit();
         }
     }
 }

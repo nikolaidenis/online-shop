@@ -1,18 +1,27 @@
 ﻿angular.module("ShopApp")
     .controller('OperationsController',
-    ['$scope', 'ProductApi', 'OperationApi', 'TempVariables', 'UserApi',
-     function ($scope, ProductApi, OperationApi, TempVariables, UserApi) {
-         getProducts();
+    ['$scope', 'ProductApi', 'OperationApi', 'TempVariables', 'UserApi','$q',
+     function ($scope, ProductApi, OperationApi, TempVariables, UserApi,$q) {
+         $scope.productCountList = [];
+         getAllProducts();
          getUser();
-         getUserOperations();
 
-         function getProducts() {
-             ProductApi.getProducts().success(function (products) {
-                 $scope.products = products;
-             }).error(function (error) {
-                 $scope.status = "Unable to retrieve products data: " + error.Message;
-             });
+         function updateUserData() {
+             getUser();
+             getUserOperations();
          }
+         
+         function getAllProducts() {
+             ProductApi.getProducts()
+                 .success(function(products) {
+                     $scope.products = products;
+                     getUserOperations();
+                 })
+                 .error(function(error) {
+                     $scope.status = "Unable to retrieve products data: " + error.Message;
+                 });
+         }
+
          function getUser() {
              UserApi.getUserData(TempVariables.test_user).success(function (user) {
                  $scope.user = user;
@@ -20,12 +29,28 @@
                  $scope.status = "Unable to retrieve user data: " + error.Message;
              });
          }
+
          function getUserOperations() {
              OperationApi.getOperations(TempVariables.test_user).success(function (operations) {
                  $scope.operations = operations;
+                 countOperations();
              }).error(function (error) {
                  $scope.status = "Unable to retrieve operations data: " + error.Message;
              });
+         }
+
+         function countOperations() {
+             for (var productIndex = 0; productIndex < $scope.products.length; productIndex++) {
+                 var collection = [];
+                 var id = $scope.products[productIndex].Id;
+                 for (var i = 0; i < $scope.operations.length; i++) {
+                     if ($scope.operations[i].ProductId === id
+                         && $scope.operations[i].IsSelled == false) {
+                         collection.push($scope.operations[i]);
+                     }
+                 }
+                 $scope.productCountList[id] = collection;
+             }
          }
 
          $scope.purchase = function (product) {
@@ -42,6 +67,7 @@
              UserApi.debitBalance(paymentObj).then(
                  function () {
                      OperationApi.postPurchase(purchaseObj).success(function () {
+                         updateUserData();
                          alert("Purchase completed");
                      }).error(function (error) {
                          alert("Something is wrong: " + error.Message);
@@ -66,35 +92,28 @@
              }
 
              UserApi.chargeBalance(payment).then(function () {
+                 getUser();
                  alert("Balance charged! Yeaaaa");
              }, function () {
                  alert("Charge invalid!");
              });
          }
-         $scope.countOperations = function (productId) {
-             var collection = [];
-             for (var i = 0; i < $scope.operations.length; i++) {
-                 if ($scope.operations[i].ProductId === productId
-                        && $scope.operations[i].IsSelled == false) {
-                     collection.push($scope.operations[i]);
-                 }
-             }
-             return collection;
-         }
+         
          $scope.sellLastProduct = function (productId) {
              for (var i = $scope.operations.length - 1; i >= 0; i--) {
+
                  if ($scope.operations[i].ProductId === productId
                         && $scope.operations[i].IsSelled == false) {
                      var payment = {
-                         'UserId': $scope.operations[i].UserId,
+                         'UserId': $scope.operations[i].UserID,
                          'Amount': $scope.operations[i].Amount
                      }
                      UserApi.chargeBalance(payment)
                          .success(function () {
                              OperationApi.postSale($scope.operations[i])
                                  .success(function () {
+                                     updateUserData();
                                      alert("Sell succeed! Yeaaa");
-                                     $scope.countOperations($scope.operations[i].ProductId);
                                  })
                                  .error(function () {
                                      alert("Sell invalid!");
@@ -102,7 +121,6 @@
                          }).error(function (error) {
                              alert("Error seling item: Returning money problem, " + error.Message);
                          });
-
                      return;
                  }
              }

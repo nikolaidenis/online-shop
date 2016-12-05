@@ -6,17 +6,15 @@ using OnlineShop.Core.Data;
 
 namespace OnlineShop.Infrastructure.Data
 {
-    public class ProductRepository: IProductRepository
+    public class ProductRepository: Repository<Product>, IProductRepository
     {
-        private readonly UnitOfWork _unitOfWork;
-        public ProductRepository(DbContext context)
+        public ProductRepository(DbContext context):base(context)
         {
-            _unitOfWork = new UnitOfWork(context);
         }
 
         public async Task<IEnumerable<Product>> GetProducts()
         {
-            return await _unitOfWork.Products.GetAll();
+            return await GetAll();
         }
 
         public Task<Product> GetProduct(int id)

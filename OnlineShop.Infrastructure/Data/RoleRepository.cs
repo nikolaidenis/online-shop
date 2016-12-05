@@ -7,12 +7,10 @@ using OnlineShop.Core.Data;
 
 namespace OnlineShop.Infrastructure.Data
 {
-    public class RoleRepository : IRoleRepository
+    public class RoleRepository : Repository<Role>, IRoleRepository
     {
-        private readonly UnitOfWork _unitOfWork;
-        public RoleRepository(DbContext context) 
+        public RoleRepository(DbContext context) : base(context)
         {
-            _unitOfWork = new UnitOfWork(context);
         }
 
         public async Task<IEnumerable<Role>> GetRoles()

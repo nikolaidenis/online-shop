@@ -14,5 +14,7 @@ namespace OnlineShop.Core.Data
         Task Update(T obj);
         Task<T> Get(Expression<Func<T, bool>> expression);
         IQueryable<T> GetAllAsQueryable();
+        void Commit();
+        Task CommitAsync();
     }
 }

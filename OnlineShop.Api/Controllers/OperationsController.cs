@@ -18,11 +18,11 @@ namespace OnlineShop.Api.Controllers
     public class OperationsController : ApiController
     {
         [Dependency]
-        public IOperationsRepository Repository { get; }
+        private IUnitOfWork UnitOfWork { get; }
 
-        public OperationsController(IOperationsRepository repository)
+        public OperationsController(IUnitOfWork unitOfWork)
         {
-            Repository = repository;
+            UnitOfWork = unitOfWork;
         }
 
         [Route("api/operation_purchase")]
@@ -39,7 +39,7 @@ namespace OnlineShop.Api.Controllers
                     Date = DateTime.Now.Date,
                     ProductId = model.ProductId
                 };
-                await Repository.MakePurchase(purchase);
+                await UnitOfWork.Operations.MakePurchase(purchase);
             }
             catch (SqlException e)
             {
@@ -56,7 +56,7 @@ namespace OnlineShop.Api.Controllers
         {
             try
             {
-                await Repository.MakeSale(model.Id);
+                await UnitOfWork.Operations.MakeSale(model.Id);
             }
             catch (Exception)
             {
@@ -73,7 +73,7 @@ namespace OnlineShop.Api.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "User is not exist");
             }
 
-            var listOperations = await Repository.GetOperations(userId, pageNum, rowsCount);
+            var listOperations = await UnitOfWork.Operations.GetOperations(userId, pageNum, rowsCount);
             Mapper.Initialize(expression => expression.CreateMap(typeof(Operation), typeof(OperationModel)));
             var operationsModel = Mapper.Map<IEnumerable<Operation>, List<OperationModel>>(listOperations);
 
@@ -88,7 +88,7 @@ namespace OnlineShop.Api.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "User does not exist");
             }
 
-            var rows = await Repository.GetOperations(userId);
+            var rows = await UnitOfWork.Operations.GetOperations(userId);
             return Request.CreateResponse(HttpStatusCode.OK, rows);
         }
     }

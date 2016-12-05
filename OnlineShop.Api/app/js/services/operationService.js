@@ -4,7 +4,7 @@ srv.factory('OperationApi', ['$http', 'AppVariables', function ($http, AppVariab
     var OperationApi = {};
 
     OperationApi.getOperations = function (userId) {
-        return $http.get(AppVariables.base_url + '/operation/' + userId);
+        return $http.get(AppVariables.base_url + '/operation/count_rows/' + userId);
     }
     OperationApi.postPurchase = function(purchase) {
         return $http.post(AppVariables.base_url + '/operation_purchase', purchase);

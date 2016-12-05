@@ -1,6 +1,6 @@
 ﻿using System.Web.Http;
-using Microsoft.Practices.Unity.Configuration;
 using OnlineShop.Api.App_Start;
+using OnlineShop.Api.Filters;
 
 namespace OnlineShop.Api
 {
@@ -12,6 +12,7 @@ namespace OnlineShop.Api
 
             // Web API routes
             config.MapHttpAttributeRoutes();
+//            config.Filters.Add(new CustomAuthenticationFilter());
 
             config.Routes.MapHttpRoute(
                 name: "UserIdParameterApi",

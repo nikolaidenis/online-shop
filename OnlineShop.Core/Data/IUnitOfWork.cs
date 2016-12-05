@@ -5,7 +5,10 @@ namespace OnlineShop.Core.Data
 {
     public interface IUnitOfWork : IDisposable
     {
-        void Commit();
-        Task CommitAsync();
+        IRoleRepository Roles { get;  }
+        IProductRepository Products { get;  }
+        IUserRepository Users { get; }
+        IOperationsRepository Operations { get;  }
+//        IUnitOfWork CreateContext(string connectionString);
     }
 }

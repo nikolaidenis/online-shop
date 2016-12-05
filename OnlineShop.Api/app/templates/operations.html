@@ -1,4 +1,5 @@
-﻿<div ng-controller="OperationsController">
+﻿<div>
+    
     <div class="square" ng-repeat="product in products">
         {{product.Name}}
         {{product.Cost}}
@@ -10,9 +11,11 @@
     Balance:
     <p>{{user.Balance}}</p>
     <p ng-repeat="product in products">
-        {{product.Name}} - {{countOperations(product.Id).length}} - <input type="button" value="Sell" ng-click="sellLastProduct(product.Id)"/>
+        {{product.Name}} - {{productCountList[product.Id].length}} - <input type="button" value="Sell" ng-click="sellLastProduct(product.Id)"/>
     </p>
     <input type="button" value="Fill balance" ng-click="chargeUserBalance(user.Id)"/>
+    <input type="button" value="Draw graph" onclick="drawGraph($scope.productCountList)"/>
+    <canvas id="graph" width="200" height="200"></canvas>
     <p ng-repeat="operation in operations">
         {{operation.UserId}}
         {{operation.ProductId}}

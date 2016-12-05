@@ -4,15 +4,19 @@ shopApp.config([
     '$routeProvider', function ($routeProvider) {
         $routeProvider
             .when('/operations', {
-                templateUrl: 'templates/operations.html',
-                controller: 'OperationsController'
+                templateUrl: 'app/templates/operations.html',
+                controller: 'OperationsController as operations'
             })
             .when('/archives', {
-                templateUrl: 'templates/archives.html',
-                controller: 'ArchivesController'
+                templateUrl: 'app/templates/archives.html',
+                controller: 'ArchivesController as archives'
+            })
+            .when('/', {
+                templateUrl: 'app/templates/login.html',
+                controller: ''
             })
             .otherwise({
-                redirectTo: '/operations'
+                redirectTo: '/'
             });
     }
 ]);

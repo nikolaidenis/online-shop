@@ -1,6 +1,6 @@
 using System;
+using System.Web.Http;
 using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.Configuration;
 using OnlineShop.Core.Data;
 using OnlineShop.Infrastructure.Data;
 
@@ -36,13 +36,15 @@ namespace OnlineShop.Api.App_Start
         {
             // NOTE: To load from web.config uncomment the line below. Make sure to add a Microsoft.Practices.Unity.Configuration to the using statements.
             // container.LoadConfiguration();
-            container.RegisterType<IUserRepository, UserRepository>();
-            container.RegisterType<IProductRepository, ProductRepository>();
-            container.RegisterType<IRoleRepository, RoleRepository>();
-            container.RegisterType<IOperationsRepository, OperationsRepository>();
-            container.RegisterType<IUnitOfWork, UnitOfWork>();
+            var connectionString =
+                "metadata=res://*/ShopContext.csdl|res://*/ShopContext.ssdl|res://*/ShopContext.msl;provider=System.Data.SqlClient;provider connection string='data source=(local);initial catalog=OnlineShop;integrated security=True;multipleactiveresultsets=True;application name=EntityFramework'";
             // TODO: Register your types here
-            // container.RegisterType<IProductRepository, ProductRepository>();
+            container.RegisterType<IUnitOfWork>(new PerRequestLifetimeManager(), new InjectionFactory(c=>UnitOfWork.CreateContext(connectionString)));
+            //container.RegisterType<IProductRepository, ProductRepository>(new PerRequestLifetimeManager(), new InjectionConstructor(shopContext));
+//             container.RegisterType<IOperationsRepository, OperationsRepository>(new PerRequestLifetimeManager(), new InjectionConstructor(shopContext));
+            // container.RegisterType<IRoleRepository, RoleRepository>(new PerRequestLifetimeManager(), new InjectionConstructor(shopContext));
+            // container.RegisterType<IUserRepository, UserRepository>(new PerRequestLifetimeManager(), new InjectionConstructor(shopContext));
+
         }
     }
 }

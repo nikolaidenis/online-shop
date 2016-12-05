@@ -12,5 +12,6 @@ namespace OnlineShop.Core.Data
         Task<int> CreateUser(User obj);
         Task UpdateUser(User user);
         Task SaveChanges();
+        Task<int> AuthenticateUser(string login, string password);
     }
 }

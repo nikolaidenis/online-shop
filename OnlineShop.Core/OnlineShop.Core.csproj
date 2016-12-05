@@ -88,11 +88,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
     <EntityDeploy Include="ShopContext.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>ShopContext.Designer.cs</LastGenOutput>
     </EntityDeploy>
+    <None Include="packages.config" />
     <None Include="ShopContext.edmx.diagram">
       <DependentUpon>ShopContext.edmx</DependentUpon>
     </None>

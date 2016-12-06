@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
 using Microsoft.Practices.Unity;
+using OnlineShop.Api.Filters;
 using OnlineShop.Api.Models;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
@@ -20,6 +21,7 @@ namespace OnlineShop.Api.Controllers
             UnitOfWork = unitOfWork;
         }
 
+        [CustomAuthenticationFilter]
         [Authorize]
         [Route("api/user_debit_balance")]
         public async Task<HttpResponseMessage> DebitUserBalance(PaymentModel payment)

@@ -12,7 +12,7 @@ namespace OnlineShop.Api
 
             // Web API routes
             config.MapHttpAttributeRoutes();
-//            config.Filters.Add(new CustomAuthenticationFilter());
+            config.Filters.Add(new CustomAuthenticationFilter());
 
             config.Routes.MapHttpRoute(
                 name: "UserIdParameterApi",

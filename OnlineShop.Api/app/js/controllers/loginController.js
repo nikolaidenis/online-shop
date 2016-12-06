@@ -5,10 +5,15 @@
             userName: "",
             password: ""
         };
+        
+        $scope.message = "";
 
-        $scope.login = function(){
+        $scope.submit = function(){
         	AuthApi.login($scope.loginData).then(function(response){
-        		
+        		$location.path('/operations');
+        	}, function(error){
+        		//toDo:
+        		$scope.message = error.Message;
         	});
         }
 

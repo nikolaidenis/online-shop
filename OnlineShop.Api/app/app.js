@@ -1,4 +1,5 @@
-﻿var shopApp = angular.module("ShopApp", ["ngRoute", "ShopApp.config", "ProductService", "OperationService", "UserService"]);
+﻿var shopApp = angular.module("ShopApp", ["ngRoute", "ShopApp.config", "ProductService", "OperationService", 
+                                                        "UserService","AuthInterceptorService","AuthService"]);
 
 shopApp.config([
     '$routeProvider', function ($routeProvider) {
@@ -20,3 +21,7 @@ shopApp.config([
             });
     }
 ]);
+
+shopApp.run(['AuthApi', function(AuthApi){
+    AuthApi.fillAuth();
+}]);

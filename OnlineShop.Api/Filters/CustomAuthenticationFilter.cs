@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace OnlineShop.Api.Filters
             var request = context.Request;
             var authorization = request.Headers.Authorization;
 
-            if (authorization == null || authorization.Scheme != "Custom")
+            if (authorization == null || authorization.Scheme != "Bearer")
             {
                 return;
             }
@@ -33,8 +34,7 @@ namespace OnlineShop.Api.Filters
                 return;
             }
 
-            //            Tuple<string, string> loginAndPassword = ExtractUserNameAndPassword(authorization.Parameter);
-            Tuple<string, string> loginAndPassword = new Tuple<string, string>("", "");
+            var loginAndPassword = ExtractUsernameAndPassword(authorization.Parameter);
             if (loginAndPassword == null)
             {
                 context.ErrorResult = new AuthenticationErrorResult("Invalid credentials", request);
@@ -55,6 +55,11 @@ namespace OnlineShop.Api.Filters
             }
         }
 
+        private Tuple<string, string> ExtractUsernameAndPassword(string parameter)
+        {
+            return null;
+        }
+
         private async Task<IPrincipal> AuthenticateAsync(string login, string password, CancellationToken token)
         {
             var principals = new CustomPrincipal();
@@ -64,9 +69,9 @@ namespace OnlineShop.Api.Filters
 
         public Task ChallengeAsync(HttpAuthenticationChallengeContext context, CancellationToken cancellationToken)
         {
-            //            throw new NotImplementedException();
-            return null;
-
+            var challenge = new AuthenticationHeaderValue("Bearer");
+            context.Result = new AddChallengeToUnauthorizedUser(challenge, context.Result);
+            return Task.FromResult(0);
         }
     }
 }

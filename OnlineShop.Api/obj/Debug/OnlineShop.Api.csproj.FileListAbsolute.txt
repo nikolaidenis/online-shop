@@ -74,3 +74,10 @@ D:\projects\OnlineShop\OnlineShop.Api\bin\System.Web.Razor.xml
 D:\projects\OnlineShop\OnlineShop.Api\bin\System.Web.WebPages.xml
 D:\projects\OnlineShop\OnlineShop.Api\bin\System.Web.WebPages.Deployment.xml
 D:\projects\OnlineShop\OnlineShop.Api\bin\System.Web.WebPages.Razor.xml
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.Host.SystemWeb.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Owin.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\System.Web.Http.Owin.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.xml
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.Host.SystemWeb.xml
+D:\projects\OnlineShop\OnlineShop.Api\bin\System.Web.Http.Owin.xml

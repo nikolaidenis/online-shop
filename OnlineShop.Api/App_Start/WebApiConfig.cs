@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
+﻿using System.Web.Http;
+using OnlineShop.Api.App_Start;
+using OnlineShop.Api.Filters;
 
 namespace OnlineShop.Api
 {
@@ -13,12 +12,22 @@ namespace OnlineShop.Api
 
             // Web API routes
             config.MapHttpAttributeRoutes();
+            config.Filters.Add(new CustomAuthenticationFilter());
+
+            config.Routes.MapHttpRoute(
+                name: "UserIdParameterApi",
+                routeTemplate: "api/{controller}/{action}/{userId}",
+                defaults: new {userId = RouteParameter.Optional}
+                );
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional }
-            );
+                defaults: new {id = RouteParameter.Optional}
+                );
+
+            var container = UnityConfig.GetConfiguredContainer();
+            config.DependencyResolver = new UnityResolver(container);
         }
     }
 }

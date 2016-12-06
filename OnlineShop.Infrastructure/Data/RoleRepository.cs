@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Threading.Tasks;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
 
 namespace OnlineShop.Infrastructure.Data
 {
-    public class RoleRepository : IRoleRepository
+    public class RoleRepository : Repository<Role>, IRoleRepository
     {
-        private readonly UnitOfWork unitOfWork;
-        public RoleRepository() 
+        public RoleRepository(DbContext context) : base(context)
         {
-            unitOfWork = new UnitOfWork();
         }
 
         public async Task<IEnumerable<Role>> GetRoles()

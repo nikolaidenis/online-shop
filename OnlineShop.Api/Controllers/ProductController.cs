@@ -4,6 +4,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
+using Microsoft.Practices.Unity;
+using OnlineShop.Api.Filters;
 using OnlineShop.Api.Models;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
@@ -13,21 +15,17 @@ namespace OnlineShop.Api.Controllers
 {
     public class ProductController : ApiController
     {
-        private readonly IProductRepository repository;
-
-        public ProductController()
+        [Dependency]
+        private IUnitOfWork UnitOfWork { get; }
+        public ProductController(IUnitOfWork unitOfWork)
         {
-            repository = new ProductRepository();
+            UnitOfWork = unitOfWork;
         }
 
+//        [CustomAuthenticationFilter]
         public async Task<HttpResponseMessage> Get()
         {
-            var products = await repository.GetProducts();
-            if (products == null)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Products not found!");
-            }
-
+            var products = await UnitOfWork.Products.GetProducts();
             Mapper.Initialize(expression => expression.CreateMap(typeof(Product), typeof(ProductModel)));
             var productsModel = Mapper.Map<IEnumerable<Product>,List<ProductModel>>(products);
 

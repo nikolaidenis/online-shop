@@ -1,45 +1,55 @@
 ﻿using System;
+using System.Data.Entity;
+using System.Threading.Tasks;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
 
 namespace OnlineShop.Infrastructure.Data
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork : DbContext, IUnitOfWork
     {
-        private readonly ShopContext context;
+        internal readonly DbContext Context;
 
-        private Repository<Role> roleRepository;
-        private Repository<Product> productRepository;
-        private Repository<User> userRepository;
+        private IRoleRepository _roleRepository;
+        private IProductRepository _productRepository;
+        private IUserRepository _userRepository;
+        private IOperationsRepository _operationRepository; 
 
-        public Repository<Role> Roles => roleRepository ?? (roleRepository = new Repository<Role>(context));
+        public IRoleRepository Roles => _roleRepository ?? (_roleRepository = new RoleRepository(Context));
 
-        public Repository<Product> Products => productRepository ?? (productRepository = new Repository<Product>(context));
+        public IProductRepository Products => _productRepository ?? (_productRepository = new ProductRepository(Context));
 
-        public Repository<User> Users => userRepository ?? (userRepository = new Repository<User>(context));
+        public IUserRepository Users => _userRepository ?? (_userRepository = new UserRepository(Context));
 
-        public UnitOfWork()
+        public IOperationsRepository Operations 
+            => _operationRepository ?? (_operationRepository = new OperationsRepository(Context));
+
+        public static IUnitOfWork CreateContext(string connectionString)
         {
-            context = new ShopContext();
+            return new UnitOfWork(connectionString);
         }
 
-        public void Commit()
+        public UnitOfWork(DbContext context)
         {
-            context.SaveChanges();
+            Context = context;
         }
-
-        private bool disposed = false;
+        public UnitOfWork(string connectionString)
+        {
+            Context = new DbContext(connectionString);
+        }
+       
+        private bool _disposed = false;
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
-                    context.Dispose();
+                    Context.Dispose();
                 }
             }
-            disposed = true;
+            _disposed = true;
         }
 
         public void Dispose()

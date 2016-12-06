@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Threading.Tasks;
 using OnlineShop.Core;
@@ -6,11 +7,15 @@ using OnlineShop.Core.Data;
 
 namespace OnlineShop.Infrastructure.Data
 {
-    public class UserRepository: Repository<User>,IUserRepository 
+    public class UserRepository: Repository<User>,IUserRepository
     {
-        public UserRepository(DbContext context) : base(context)
+
+        public UserRepository(DbContext context):base(context)
         {
-            
+        }
+
+        public UserRepository(string context) : base(context)
+        {
         }
 
         public async Task<IEnumerable<User>> GetUsers()
@@ -20,7 +25,19 @@ namespace OnlineShop.Infrastructure.Data
 
         public async Task<User> GetUser(int id)
         {
-            return await Get(id);
+            return await Get(user => user.Id == id);
+        }
+
+        public async Task<User> ModifyUser(int id)
+        {
+            var user = await Get(usr => usr.Id == id);
+            await Update(user);
+            return user;
+        }
+
+        public async Task<bool> IsUserExist(string username)
+        {
+            return (await Get(user => user.UserName == username)) != null;
         }
 
         public Task<int> CreateUser(User obj)
@@ -28,9 +45,20 @@ namespace OnlineShop.Infrastructure.Data
             throw new System.NotImplementedException();
         }
 
-        public Task UpdateUser(User user)
+        public async Task UpdateUser(User user)
         {
-            throw new System.NotImplementedException();
+            await Update(user);
+        }
+
+        public async Task SaveChanges()
+        {
+            await CommitAsync();
+        }
+
+        public async Task<int> AuthenticateUser(string login, string password)
+        {
+            var user = await Get(usr => usr.UserName == login && usr.Password == password);
+            return user?.Id ?? 0;
         }
     }
 }

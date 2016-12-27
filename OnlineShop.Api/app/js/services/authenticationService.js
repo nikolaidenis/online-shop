@@ -1,4 +1,4 @@
-﻿var app = angular.module("AuthService", ["ShopApp.config"]);
+var app = angular.module("AuthService", ["ShopApp.config"]);
 
 app.factory('AuthApi', ['$http', '$q', 'AppVariables', function ($http, $q, AppVariables) {
     var authServiceFactory = {};
@@ -9,8 +9,8 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', function ($http, $q, AppV
     };
 
     authServiceFactory.setAuthenticatedUser = function(userName) {
-        authentication.isAuthenticated = true;
-        authentication.userName = userName;
+        authServiceFactory.authentication.isAuthenticated = true;
+        authServiceFactory.authentication.userName = userName;
     }
     authServiceFactory.setUnauthenticatedUser = function () {
         authentication.isAuthenticated = false;
@@ -25,10 +25,14 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', function ($http, $q, AppV
 
     authServiceFactory.login = function (userData) {
         var deffer = $q.defer();
-        $http.post(AppVariables.base_url + '/account/register', userData, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+        var obj = {
+            Username:userData.userName,
+            Password:userData.password
+        }
+        $http.post(AppVariables.base_url + '/account/login', JSON.stringify(obj), { headers: { 'Content-Type': 'application/JSON' } })
             .success(function (response) {
                 localStorage.setItem('authorizationData', { token: response.access_token, username: userData.userName });
-                setAuthenticatedUser(userData.userName);
+                authServiceFactory.setAuthenticatedUser(userData.userName);
                 deffer.resolve(response);
             });
         return deffer.promise;
@@ -42,7 +46,7 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', function ($http, $q, AppV
     authServiceFactory.fillAuth = function() {
         var data = localStorage.getItem('authorizationData');
         if (data) {
-            setAuthenticatedUser(data.username);
+            authServiceFactory.setAuthenticatedUser(data.username);
         }
     }
 

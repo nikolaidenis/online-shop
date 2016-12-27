@@ -81,3 +81,15 @@ D:\projects\OnlineShop\OnlineShop.Api\bin\System.Web.Http.Owin.dll
 D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.xml
 D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.Host.SystemWeb.xml
 D:\projects\OnlineShop\OnlineShop.Api\bin\System.Web.Http.Owin.xml
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.Identity.Core.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.Identity.Owin.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.Security.Cookies.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.Security.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.Security.OAuth.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.Identity.Core.xml
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.Identity.Owin.xml
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.Security.xml
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.Security.Cookies.xml
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.Owin.Security.OAuth.xml
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.Identity.EntityFramework.xml

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
 using Microsoft.Practices.Unity;
+using OnlineShop.Api.Filters;
 using OnlineShop.Api.Models;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
@@ -65,6 +66,8 @@ namespace OnlineShop.Api.Controllers
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
+        [CustomAuthenticationFilter]
+        [Authorize]
         [Route("api/operation/{userId:int}/{pageNum:int}/{rowsCount:int}")]
         public async Task<HttpResponseMessage> GetOperations(int userId, int pageNum = 1, int rowsCount = 5)
         {
@@ -80,6 +83,8 @@ namespace OnlineShop.Api.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, operationsModel);
         }
 
+        [CustomAuthenticationFilter]
+        [Authorize]
         [Route("api/operation/count_rows/{userId:int}")]
         public async Task<HttpResponseMessage> GetRows(int userId)
         {

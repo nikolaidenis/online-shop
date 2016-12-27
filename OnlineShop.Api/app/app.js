@@ -14,7 +14,7 @@ shopApp.config([
             })
             .when('/', {
                 templateUrl: 'app/templates/login.html',
-                controller: ''
+                controller: 'LoginController as loginCtrl'
             })
             .otherwise({
                 redirectTo: '/'

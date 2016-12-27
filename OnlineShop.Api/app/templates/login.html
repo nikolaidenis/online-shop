@@ -1,5 +1,5 @@
-﻿<form id="loginForm" action="/">
-    Login:<input type="text" ng-bind="loginData.userName" name="login" id="login"/><br/>
-    Password:<input type="text" ng-bind="loginData.password" name="password" id="password"/><br/>
+﻿<div>
+    Login:<input type="text" ng-model="loginData.userName" name="login" id="login"/><br/>
+    Password:<input type="text" ng-model="loginData.password" name="password" id="password"/><br/>
     <button type="button" ng-click="submit()">Enter</button>
-</form>
+</div>

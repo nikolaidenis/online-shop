@@ -15,6 +15,7 @@ using OnlineShop.Core.Data;
 
 namespace OnlineShop.Api.Controllers
 {
+    [AllowAnonymous]
     public class AccountController : ApiController
     {
         [Dependency]

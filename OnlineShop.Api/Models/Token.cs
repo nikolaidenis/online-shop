@@ -19,6 +19,9 @@ namespace OnlineShop.Api.Models
 
         [JsonProperty("refresh_token")]
         public string RefreshToken { get; set; }
+
+        [JsonProperty("error")]
+        public string Error { get; set; }
     }
 
 }

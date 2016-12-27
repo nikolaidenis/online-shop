@@ -48,6 +48,8 @@ namespace OnlineShop.Api.Controllers
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
+        [CustomAuthenticationFilter]
+        [Authorize]
         [Route("api/user_info/{userId:int}")]
         public async Task<HttpResponseMessage> GetUserData(int userId)
         {

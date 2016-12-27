@@ -13,7 +13,7 @@ namespace OnlineShop.Infrastructure.Data
         public UserRepository(DbContext context):base(context)
         {
         }
-
+        
         public async Task<IEnumerable<User>> GetUsers()
         {
             return await GetAll();

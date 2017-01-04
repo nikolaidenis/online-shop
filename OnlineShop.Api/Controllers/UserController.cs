@@ -11,7 +11,7 @@ using OnlineShop.Core.Data;
 
 namespace OnlineShop.Api.Controllers
 {
-    public class UserController : ApiController
+    public class UserController : BaseController
     {
         [Dependency]
         private IUnitOfWork UnitOfWork { get; }
@@ -20,9 +20,7 @@ namespace OnlineShop.Api.Controllers
         {
             UnitOfWork = unitOfWork;
         }
-
-        [CustomAuthenticationFilter]
-        [Authorize]
+        
         [Route("api/user_debit_balance")]
         public async Task<HttpResponseMessage> DebitUserBalance(PaymentModel payment)
         {
@@ -47,9 +45,7 @@ namespace OnlineShop.Api.Controllers
 
             return Request.CreateResponse(HttpStatusCode.OK);
         }
-
-        [CustomAuthenticationFilter]
-        [Authorize]
+        
         [Route("api/user_info/{userId:int}")]
         public async Task<HttpResponseMessage> GetUserData(int userId)
         {

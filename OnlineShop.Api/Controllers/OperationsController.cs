@@ -16,7 +16,8 @@ using OnlineShop.Infrastructure.Data;
 
 namespace OnlineShop.Api.Controllers
 {
-    public class OperationsController : ApiController
+    [Authorize]
+    public class OperationsController : BaseController
     {
         [Dependency]
         private IUnitOfWork UnitOfWork { get; }
@@ -65,8 +66,7 @@ namespace OnlineShop.Api.Controllers
             }
             return Request.CreateResponse(HttpStatusCode.OK);
         }
-
-        [CustomAuthenticationFilter]
+        
         [Authorize]
         [Route("api/operation/{userId:int}/{pageNum:int}/{rowsCount:int}")]
         public async Task<HttpResponseMessage> GetOperations(int userId, int pageNum = 1, int rowsCount = 5)
@@ -82,9 +82,7 @@ namespace OnlineShop.Api.Controllers
 
             return Request.CreateResponse(HttpStatusCode.OK, operationsModel);
         }
-
-        [CustomAuthenticationFilter]
-        [Authorize]
+        
         [Route("api/operation/count_rows/{userId:int}")]
         public async Task<HttpResponseMessage> GetRows(int userId)
         {

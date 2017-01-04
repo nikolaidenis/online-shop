@@ -36,9 +36,10 @@ namespace OnlineShop.Infrastructure.Data
             return (await Get(user => user.UserName == username)) != null;
         }
 
-        public Task<int> CreateUser(User obj)
+        public async Task<int> CreateUser(User obj)
         {
-            throw new System.NotImplementedException();
+            var user = await Create(obj);
+            return user.Id;
         }
 
         public async Task UpdateUser(User user)

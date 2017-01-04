@@ -22,6 +22,13 @@ namespace OnlineShop.Core
         public int RoleId { get; set; }
         public decimal Balance { get; set; }
         public bool IsBlocked { get; set; }
+        public string Email { get; set; }
+        public bool IsEmailConfirmed { get; set; }
+
+        public void ConfirmEmail()
+        {
+            IsEmailConfirmed = true;
+        }
     
         public virtual Role Role { get; set; }
     }

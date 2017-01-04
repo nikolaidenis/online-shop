@@ -10,7 +10,7 @@
 
         $scope.submit = function(){
         	AuthApi.login($scope.loginData).then(function(response){
-        		$location.path('/operations');
+        		$location.path('/operatoins');
         	}, function(error){
         		//toDo:
         		$scope.message = error.Message;

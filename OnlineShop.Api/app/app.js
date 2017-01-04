@@ -1,5 +1,5 @@
 ﻿var shopApp = angular.module("ShopApp", ["ngRoute", "ShopApp.config", "ProductService", "OperationService", 
-                                                        "UserService","AuthInterceptorService","AuthService"]);
+                                                        "UserService","AuthInterceptorService","AuthService","LocalStorageModule"]);
 
 shopApp.config([
     '$routeProvider', function ($routeProvider) {
@@ -12,15 +12,22 @@ shopApp.config([
                 templateUrl: 'app/templates/archives.html',
                 controller: 'ArchivesController as archives'
             })
-            .when('/', {
+            .when('/login', {
                 templateUrl: 'app/templates/login.html',
                 controller: 'LoginController as loginCtrl'
             })
+            .when('/signup', {
+                templateUrl: 'app/templates/signup.html',
+                controller: 'SignupController as signupCtrl'
+            })
             .otherwise({
-                redirectTo: '/'
+                redirectTo: '/login'
             });
     }
 ]);
+
+shopApp.config(function($httpProvider){
+});
 
 shopApp.run(['AuthApi', function(AuthApi){
     AuthApi.fillAuth();

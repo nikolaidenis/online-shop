@@ -1,6 +1,6 @@
 var app = angular.module("AuthService", ["ShopApp.config"]);
 
-app.factory('AuthApi', ['$http', '$q', 'AppVariables', function ($http, $q, AppVariables) {
+app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', function ($http, $q, AppVariables, localStorageService) {
     var authServiceFactory = {};
 
     authServiceFactory.authentication = {
@@ -18,7 +18,7 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', function ($http, $q, AppV
     }
 
     authServiceFactory.register = function (userInfo) {
-        return $http.post(AppVariables.base_url + '/account/register', userInfo).then(function (response) {
+        return $http.post(AppVariables.base_url + '/account/signup', userInfo).then(function (response) {
             return response;
         });
     };
@@ -30,8 +30,9 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', function ($http, $q, AppV
             Password:userData.password
         }
         $http.post(AppVariables.base_url + '/account/login', JSON.stringify(obj), { headers: { 'Content-Type': 'application/JSON' } })
-            .success(function (response) {
-                localStorage.setItem('authorizationData', { token: response.access_token, username: userData.userName });
+        //$http.post(AppVariables.base_url + '/token', JSON.stringify(obj), { headers: { 'Content-Type': 'application/JSON' } })
+            .then(function (response) {
+                localStorageService.add('authorizationData', { token: response.data, username: userData.userName });
                 authServiceFactory.setAuthenticatedUser(userData.userName);
                 deffer.resolve(response);
             });
@@ -39,12 +40,12 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', function ($http, $q, AppV
     }
 
     authServiceFactory.logout = function() {
-        localStorage.removeItem('authorizationData');
+        localStorageService.remove('authorizationData');
         setUnauthenticatedUser();
     }
 
     authServiceFactory.fillAuth = function() {
-        var data = localStorage.getItem('authorizationData');
+        var data = localStorageService.get('authorizationData');
         if (data) {
             authServiceFactory.setAuthenticatedUser(data.username);
         }

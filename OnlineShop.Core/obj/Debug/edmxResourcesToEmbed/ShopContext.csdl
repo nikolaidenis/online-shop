@@ -51,6 +51,8 @@
     <Property Name="Balance" Type="Decimal" Nullable="false" Precision="19" Scale="4" />
     <Property Name="IsBlocked" Type="Boolean" Nullable="false" />
     <NavigationProperty Name="Role" Relationship="OnlineShopModel.FK_Users_Roles" FromRole="User" ToRole="Role" />
+    <Property Name="Email" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+    <Property Name="IsEmailConfirmed" Type="Boolean" Nullable="false" />
   </EntityType>
   <Association Name="FK_Users_Roles">
     <End Type="OnlineShopModel.Role" Role="Role" Multiplicity="1" />

@@ -13,7 +13,7 @@ using OnlineShop.Infrastructure.Data;
 
 namespace OnlineShop.Api.Controllers
 {
-    public class ProductController : ApiController
+    public class ProductController : BaseController
     {
         [Dependency]
         private IUnitOfWork UnitOfWork { get; }
@@ -21,8 +21,7 @@ namespace OnlineShop.Api.Controllers
         {
             UnitOfWork = unitOfWork;
         }
-
-//        [CustomAuthenticationFilter]
+        
         public async Task<HttpResponseMessage> Get()
         {
             var products = await UnitOfWork.Products.GetProducts();

@@ -1,13 +1,13 @@
 ﻿var app = angular.module('AuthInterceptorService', ['ShopApp.config']);
 
-app.factory('InterceptorApi', ['$q', '$injector', '$location', function($q,$injector, $location){
+app.factory('InterceptorApi', ['$q', '$injector', '$location', 'localStorageService', function($q,$injector, $location,localStorageService){
 		
 		var InterceptorApi = {};
 		
 		InterceptorApi.request = function(config){
 			config.headers = config.headers || {};
 			
-			var authData = localStorage.getItem('authorizationData');
+			var authData = localStorageService.get('authorizationData');
 			if(authData){
 				config.headers.Authorization = 'Bearer ' + authData.token;
 			}

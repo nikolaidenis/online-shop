@@ -34,6 +34,8 @@
     <EntitySetMapping Name="Users">
       <EntityTypeMapping TypeName="OnlineShopModel.User">
         <MappingFragment StoreEntitySet="Users">
+          <ScalarProperty Name="IsEmailConfirmed" ColumnName="IsEmailConfirmed" />
+          <ScalarProperty Name="Email" ColumnName="Email" />
           <ScalarProperty Name="IsBlocked" ColumnName="IsBlocked" />
           <ScalarProperty Name="Balance" ColumnName="Balance" />
           <ScalarProperty Name="RoleId" ColumnName="RoleId" />

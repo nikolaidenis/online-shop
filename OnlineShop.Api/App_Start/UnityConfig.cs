@@ -37,7 +37,7 @@ namespace OnlineShop.Api.App_Start
             // NOTE: To load from web.config uncomment the line below. Make sure to add a Microsoft.Practices.Unity.Configuration to the using statements.
             // container.LoadConfiguration();
             var connectionString =
-                "metadata=res://*/ShopContext.csdl|res://*/ShopContext.ssdl|res://*/ShopContext.msl;provider=System.Data.SqlClient;provider connection string='data source=(local);initial catalog=OnlineShop;integrated security=True;multipleactiveresultsets=True;application name=EntityFramework'";
+                "metadata=res://*/ShopContext.csdl|res://*/ShopContext.ssdl|res://*/ShopContext.msl;provider=System.Data.SqlClient;provider connection string='Server=WSC-028\\SQLEXPRESS;initial catalog=OnlineShop;integrated security=True;multipleactiveresultsets=True;application name=EntityFramework'";
             // TODO: Register your types here
             container.RegisterType<IUnitOfWork>(new PerRequestLifetimeManager(), new InjectionFactory(c=>UnitOfWork.CreateContext(connectionString)));
             //container.RegisterType<IProductRepository, ProductRepository>(new PerRequestLifetimeManager(), new InjectionConstructor(shopContext));

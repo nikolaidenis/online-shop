@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Web.Http;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin;
 using Microsoft.Owin.Cors;
 using Microsoft.Owin.Security.OAuth;
+using OnlineShop.Api.Helpers;
+using OnlineShop.Api.Models;
 using OnlineShop.Api.Providers;
 using OnlineShop.Core.Data;
 using OnlineShop.Infrastructure.Data;
@@ -27,7 +31,9 @@ namespace OnlineShop.Api
         {
 
             var uof = (UnitOfWork)config.DependencyResolver.GetService(typeof(IUnitOfWork));
-                        var options = new OAuthAuthorizationServerOptions
+            var identityDbContext = new IdentityDbContext<ApplicationUser>(uof.GetContext().Database.Connection.ConnectionString);
+
+            var options = new OAuthAuthorizationServerOptions
                         {
                             AllowInsecureHttp = true,
                             TokenEndpointPath = new PathString("/api/token"),
@@ -36,16 +42,10 @@ namespace OnlineShop.Api
                         };
             app.UseOAuthAuthorizationServer(options);
             app.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());
-            //            app.CreatePerOwinContext<OwinAuthDbContext>(() => new OwinAuthDbContext());
-            //            app.CreatePerOwinContext<UserManager<IdentityUser>>(CreateManager);
-        }
 
-//        private static UserManager<IdentityUser> CreateManager(IdentityFactoryOptions<UserManager<IdentityUser>> options, IOwinContext context)
-//        {
-//            var userStore = new UserStore<IdentityUser>(context.Get<OwinAuthDbContext>());
-//            var owinManager = new UserManager<IdentityUser>(userStore);
-//            return owinManager;
-//        }
+            app.CreatePerOwinContext(()=>identityDbContext);
+            app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
+        }
     }
     
 }

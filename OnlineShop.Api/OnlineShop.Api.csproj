@@ -1046,10 +1046,12 @@
     <Compile Include="Filters\AuthenticationErrorResult.cs" />
     <Compile Include="Filters\CustomAuthenticationFilter.cs" />
     <Compile Include="Filters\CustomPrincipal.cs" />
+    <Compile Include="Helpers\ApplicationUserManager.cs" />
     <Compile Include="Helpers\EmailService.cs" />
     <Compile Include="Models\ApplicationUser.cs" />
     <Compile Include="Models\AuthenticationModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\ModelFactory.cs" />
     <Compile Include="Models\OperationModel.cs" />
     <Compile Include="Models\PaymentModel.cs" />
     <Compile Include="Models\ProductModel.cs" />

@@ -29,6 +29,11 @@ namespace OnlineShop.Infrastructure.Data
             return new UnitOfWork(connectionString);
         }
 
+        public DbContext GetContext()
+        {
+            return Context;
+        }
+
         public UnitOfWork(DbContext context)
         {
             Context = context;

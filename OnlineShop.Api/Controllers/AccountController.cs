@@ -61,36 +61,65 @@ namespace OnlineShop.Api.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.Conflict,
                     "User with such nickname already exist!");
             }
-            try
+
+            var userObj = new User
             {
-                var userObj = new User
-                {
-                    UserName = model.Username,
-                    Password = model.Password,
-                    RoleId = 2,
-                    IsBlocked = false,
-                    IsEmailConfirmed = false,
-                    Email = model.Email
-                };
-                
-                userObj.Id = await UnitOfWork.Users.CreateUser(userObj);
-                
-                using (var messenger = new EmailService())
-                {
-                    await messenger.CreateConfirmationEmail(GenerateConfirmationToken(userObj.Id), userObj.Email);
-                }
-                
-                return Request.CreateResponse(HttpStatusCode.OK, userObj);
-            }
-            catch(SqlException e)
+                UserName = model.Username,
+                Password = model.Password,
+                RoleId = 2,
+                IsBlocked = false,
+                IsEmailConfirmed = false,
+                Email = model.Email
+            };
+
+            var userId = userObj.Id.ToString();
+
+            userObj.Id = await UnitOfWork.Users.CreateUser(userObj);
+
+            string code = await this.AppUserManager.GenerateEmailConfirmationTokenAsync(userId);
+
+            var callbackUrl = new Uri(Url.Link("ConfirmEmail", new { userId = userId, code = code }));
+
+            using (var messenger = new EmailService())
             {
-                return Request.CreateErrorResponse(HttpStatusCode.Conflict,
-                    $"{"Cannot insert user into database, message: "}:{e.InnerException}");
+                await messenger.CreateConfirmationEmail(GenerateConfirmationToken(userObj.Id), userObj.Email);
             }
+            await AppUserManager.SendEmailAsync(userId, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+
+//            Uri locationHeader = new Uri(Url.Link("GetUserById", new { id = user.Id }));
+
+            return Request.CreateResponse(HttpStatusCode.OK);
+
+            //            try
+            //            {
+            //                var userObj = new User
+            //                {
+            //                    UserName = model.Username,
+            //                    Password = model.Password,
+            //                    RoleId = 2,
+            //                    IsBlocked = false,
+            //                    IsEmailConfirmed = false,
+            //                    Email = model.Email
+            //                };
+            //                
+            //                userObj.Id = await UnitOfWork.Users.CreateUser(userObj);
+            //                
+            //                using (var messenger = new EmailService())
+            //                {
+            //                    await messenger.CreateConfirmationEmail(GenerateConfirmationToken(userObj.Id), userObj.Email);
+            //                }
+            //                
+            //                return Request.CreateResponse(HttpStatusCode.OK, userObj);
+            //            }
+            //            catch(SqlException e)
+            //            {
+            //                return Request.CreateErrorResponse(HttpStatusCode.Conflict,
+            //                    $"{"Cannot insert user into database, message: "}:{e.InnerException}");
+            //            }
         }
 
         
-        [Route("api/confirmation/{code}")]
+        [Route("api/confirmation")]
         [System.Web.Http.HttpGet]
         public async Task<HttpResponseMessage> ConfirmEmail(string code)
         {

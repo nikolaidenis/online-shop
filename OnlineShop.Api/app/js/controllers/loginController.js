@@ -10,10 +10,11 @@
 
         $scope.submit = function(){
         	AuthApi.login($scope.loginData).then(function(response){
-        		$location.path('/operatoins');
+                alert('Login completed!');
+        		$location.path('/operations');
         	}, function(error){
         		//toDo:
-        		$scope.message = error.Message;
+        		alert('Login failed. Check credentials');
         	});
         }
 

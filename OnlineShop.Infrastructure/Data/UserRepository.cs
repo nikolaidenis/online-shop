@@ -45,6 +45,7 @@ namespace OnlineShop.Infrastructure.Data
         public async Task UpdateUser(User user)
         {
             await Update(user);
+            await SaveChanges();
         }
 
         public async Task SaveChanges()

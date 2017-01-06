@@ -6,6 +6,8 @@ using System.Net;
 using System.Net.Http;
 using System.Security;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -37,15 +39,8 @@ namespace OnlineShop.Api.Controllers
         public async Task<HttpResponseMessage> Login(AuthenticationModel model)
         {
             var user = await UnitOfWork.Users.AuthenticateUser(model.Username, model.Password);
-            if (user == 0)
-            {
-                return new HttpResponseMessage(HttpStatusCode.Unauthorized);
-            }
-            var token = GenerateToken();
-            var response = new HttpResponseMessage(HttpStatusCode.OK);
-            response.Content = new StringContent(token);
-
-            return response;
+            return user == 0 ? Request.CreateErrorResponse(HttpStatusCode.Conflict,"wrong login or password") 
+                : Request.CreateResponse(HttpStatusCode.OK, GenerateToken());
         }
 
         [Route("api/account/signup")]
@@ -71,72 +66,47 @@ namespace OnlineShop.Api.Controllers
                 IsEmailConfirmed = false,
                 Email = model.Email
             };
-
-            var userId = userObj.Id.ToString();
-
             userObj.Id = await UnitOfWork.Users.CreateUser(userObj);
+            userObj.ActivationCode = GenerateConfirmationToken(userObj.Id,userObj.UserName);
+            await UnitOfWork.Users.UpdateUser(userObj);
 
-            string code = await this.AppUserManager.GenerateEmailConfirmationTokenAsync(userId);
-
-            var callbackUrl = new Uri(Url.Link("ConfirmEmail", new { userId = userId, code = code }));
+            var callbackUrl = $"http://localhost:3315/api/confirmation?id={userObj.Id}&code={userObj.ActivationCode}";
 
             using (var messenger = new EmailService())
             {
-                await messenger.CreateConfirmationEmail(GenerateConfirmationToken(userObj.Id), userObj.Email);
+                await messenger.CreateConfirmationEmail(callbackUrl, userObj.Email);
             }
-            await AppUserManager.SendEmailAsync(userId, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
-
-//            Uri locationHeader = new Uri(Url.Link("GetUserById", new { id = user.Id }));
 
             return Request.CreateResponse(HttpStatusCode.OK);
-
-            //            try
-            //            {
-            //                var userObj = new User
-            //                {
-            //                    UserName = model.Username,
-            //                    Password = model.Password,
-            //                    RoleId = 2,
-            //                    IsBlocked = false,
-            //                    IsEmailConfirmed = false,
-            //                    Email = model.Email
-            //                };
-            //                
-            //                userObj.Id = await UnitOfWork.Users.CreateUser(userObj);
-            //                
-            //                using (var messenger = new EmailService())
-            //                {
-            //                    await messenger.CreateConfirmationEmail(GenerateConfirmationToken(userObj.Id), userObj.Email);
-            //                }
-            //                
-            //                return Request.CreateResponse(HttpStatusCode.OK, userObj);
-            //            }
-            //            catch(SqlException e)
-            //            {
-            //                return Request.CreateErrorResponse(HttpStatusCode.Conflict,
-            //                    $"{"Cannot insert user into database, message: "}:{e.InnerException}");
-            //            }
         }
 
         
         [Route("api/confirmation")]
         [System.Web.Http.HttpGet]
-        public async Task<HttpResponseMessage> ConfirmEmail(string code)
+        public async Task<HttpResponseMessage> ConfirmEmail(string id, string code)
         {
-            if (string.IsNullOrEmpty(code))
+            var userId = Convert.ToInt32(id);
+            if (string.IsNullOrEmpty(code) || userId == 0)
             {
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Token is empty");
+                return Request.CreateErrorResponse(HttpStatusCode.NotFound, "Wrong parameters");
             }
-
-            int userId = ParseConfirmationToken(code);
+            
             var user = await UnitOfWork.Users.GetUser(userId);
+            if (user == null)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "User with id:"+id+" is not exist");
+            }
             if (user.IsEmailConfirmed)
             {
-                return Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, "User confirmed");
+                return Request.CreateErrorResponse(HttpStatusCode.NotAcceptable, "User already confirmed");
             }
-            user?.ConfirmEmail();
-            await UnitOfWork.Users.UpdateUser(user);
+            if (user.ActivationCode != code)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.Conflict, "Wrong token");
+            }
 
+            user.IsEmailConfirmed = true;
+            await UnitOfWork.Users.UpdateUser(user);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
@@ -149,12 +119,13 @@ namespace OnlineShop.Api.Controllers
             return token;
         }
 
-        private string GenerateConfirmationToken(int id)
+        private string GenerateConfirmationToken(int id, string name)
         {
-            string tokenStr = string.Empty;
-            var bytes = BitConverter.GetBytes(id);
-            tokenStr = bytes.Aggregate(tokenStr, (current, b) => current + b);
-            return tokenStr;
+            using (var md5 = MD5.Create())
+            {
+                var hash = md5.ComputeHash(Encoding.Default.GetBytes(id + name));
+                return new Guid(hash).ToString().Replace("-","");
+            }
         }
 
         private int ParseConfirmationToken(string token)

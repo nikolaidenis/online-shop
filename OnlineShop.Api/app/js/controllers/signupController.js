@@ -17,7 +17,8 @@ angular.module("ShopApp")
         		return;
         	}
         	AuthApi.register($scope.signupData).then(function(response){
-        		alert('Please, check your inbox for confirmation email');        		
+        		alert('Please, check your inbox for confirmation email');  
+        		$location.path('/');      		
         	}, function(error){        		//toDo:
         		$scope.message = error.Message;
         	});

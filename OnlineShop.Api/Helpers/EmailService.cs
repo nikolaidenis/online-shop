@@ -15,15 +15,14 @@ namespace OnlineShop.Api.Helpers
         #region Creds
         private string From => "onlineshoptestproj@gmail.com";
         private string Password => "adminadmin";
-        private string ConfirmationUrl => "http://localhost:3315/api/confirmation";
 #endregion
-        public async Task CreateConfirmationEmail(string token, string emailTo)
+        public async Task CreateConfirmationEmail(string callbackUrl, string emailTo)
         {
             var msg = new IdentityMessage
             {
                 Subject = "Online Shop Email Confirmation",
                 Destination = emailTo,
-                Body = token
+                Body = callbackUrl
             };
             await SendAsync(msg);
         }
@@ -37,9 +36,7 @@ namespace OnlineShop.Api.Helpers
         {
             #region formatter
             string text = $"Please click on this link to {message.Subject}: {message.Body}";
-            string html = "Please confirm your account by clicking this  <a href='"+ ConfirmationUrl+ "/" + message.Body + "'>link</a>.<br/>";
-
-//            html += HttpUtility.HtmlEncode(@"Or click on the copy the following link on the browser:" + message.Body);
+            string html = "Please confirm your account by clicking this  <a href=\"" + message.Body + "\">link</a>.<br/>";
             #endregion
 
             var msg = new MailMessage();

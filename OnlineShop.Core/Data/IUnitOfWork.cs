@@ -9,6 +9,7 @@ namespace OnlineShop.Core.Data
         IProductRepository Products { get;  }
         IUserRepository Users { get; }
         IOperationsRepository Operations { get;  }
+        IUserSessionsRepository UserSessions { get;}
 //        IUnitOfWork CreateContext(string connectionString);
     }
 }

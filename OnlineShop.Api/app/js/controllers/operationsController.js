@@ -1,7 +1,7 @@
 ﻿angular.module("ShopApp")
     .controller('OperationsController',
-    ['$scope', 'ProductApi', 'OperationApi', 'TempVariables', 'UserApi','$q',
-     function ($scope, ProductApi, OperationApi, TempVariables, UserApi,$q) {
+    ['$scope', 'ProductApi', 'OperationApi', 'AuthApi', 'UserApi','$q',
+     function ($scope, ProductApi, OperationApi, AuthApi, UserApi,$q) {
          $scope.productCountList = [];
          getAllProducts();
          getUser();
@@ -23,7 +23,7 @@
          }
 
          function getUser() {
-             UserApi.getUserData(TempVariables.test_user).success(function (user) {
+             UserApi.getUserData(AuthApi.userId()).success(function (user) {
                  $scope.user = user;
              }).error(function (error) {
                  $scope.status = "Unable to retrieve user data: " + error.Message;
@@ -31,7 +31,7 @@
          }
 
          function getUserOperations() {
-             OperationApi.getOperations(TempVariables.test_user).success(function (operations) {
+             OperationApi.getOperations(AuthApi.userId()).success(function (operations) {
                  $scope.operations = operations;
                  countOperations();
              }).error(function (error) {
@@ -55,13 +55,13 @@
 
          $scope.purchase = function (product) {
              var purchaseObj = {
-                 'UserId': TempVariables.test_user,
+                 'UserId': AuthApi.userId(),
                  'ProductId': product.Id,
                  'Amount': product.Cost,
                  'IsSelled': false
              }
              var paymentObj = {
-                 'UserId': TempVariables.test_user,
+                 'UserId': AuthApi.userId(),
                  'Amount': product.Cost
              }
              UserApi.debitBalance(paymentObj).then(

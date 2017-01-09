@@ -38,9 +38,60 @@ namespace OnlineShop.Api.Controllers
         [Route("api/account/login")]
         public async Task<HttpResponseMessage> Login(AuthenticationModel model)
         {
-            var user = await UnitOfWork.Users.AuthenticateUser(model.Username, model.Password);
-            return user == 0 ? Request.CreateErrorResponse(HttpStatusCode.Conflict,"wrong login or password") 
-                : Request.CreateResponse(HttpStatusCode.OK, GenerateToken());
+            var userId = await UnitOfWork.Users.AuthenticateUser(model.Username, model.Password);
+            if (userId == 0)
+            {
+                Request.CreateErrorResponse(HttpStatusCode.Conflict, "wrong login or password");
+            }
+
+            string token = GenerateToken();
+            await UnitOfWork.UserSessions.CreateNewSession(userId, token);
+
+            return Request.CreateResponse(HttpStatusCode.OK, token);
+        }
+
+        [Route("api/account/{session}")]
+        [System.Web.Http.HttpGet]
+        public async Task<HttpResponseMessage> GetUserBySession(string session)
+        {
+            if (string.IsNullOrEmpty(session))
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "token cannot be empty");
+            }
+            var userId = await UnitOfWork.UserSessions.GetActiveUserBySession(session);
+            
+            return Request.CreateResponse(HttpStatusCode.OK,userId);
+        }
+
+        [Route("api/account/logout/{session}")]
+        [System.Web.Http.HttpGet]
+        public async Task<HttpResponseMessage> Logout(string session)
+        {
+            if (string.IsNullOrEmpty(session))
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "token cannot be empty");
+            }
+            var userId = await UnitOfWork.UserSessions.GetActiveUserBySession(session);
+            if(userId == 0)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.Ambiguous, "token already expired");
+            }
+
+            await UnitOfWork.UserSessions.SetSessionExpired(session);
+            return Request.CreateResponse(HttpStatusCode.OK);
+        }
+
+        [Route("api/account/{userId:int}/{token}")]
+        [System.Web.Http.HttpGet]
+        public async Task<HttpResponseMessage> CheckUserToken(int userId, string token)
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "token cannot be empty");
+            }
+            var id = await UnitOfWork.UserSessions.GetActiveUserBySession(token);
+            return id == userId ? Request.CreateResponse(HttpStatusCode.OK) 
+                : Request.CreateErrorResponse(HttpStatusCode.Ambiguous, "no token assosiated with user " + userId);
         }
 
         [Route("api/account/signup")]

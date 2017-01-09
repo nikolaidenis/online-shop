@@ -5,17 +5,44 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
 
     authServiceFactory.authentication = {
         isAuthenticated: false,
-        userName: ""
+        userName: "",
+        userId:0,
+    };
+
+    authServiceFactory.userId = function(){
+        return this.authentication.userId;
+    };
+
+    authServiceFactory.isAuthenticated = function(){
+
+        return this.authentication.isAuthenticated 
+            && localStorageService.get('authorizationData')
+            && this.authentication.userId != 0;  
+    };
+
+    authServiceFactory.checkAuthenticationToken = function(){
+        var token = localStorageService.get('authorizationData').token;
+        $http.get(AppVariables.base_url + '/account/'+userId+'/'+token)
+            .then(function(status){
+                return true;
+            },function(status){
+                return false;
+            });
     };
 
     authServiceFactory.setAuthenticatedUser = function(userName) {
-        authServiceFactory.authentication.isAuthenticated = true;
-        authServiceFactory.authentication.userName = userName;
-    }
+        var token = localStorageService.get('authorizationData').token;
+        $http.get(AppVariables.base_url + '/account/'+token)
+            .then(function(response){
+                authServiceFactory.authentication.userId = response.data;
+                authServiceFactory.authentication.isAuthenticated = true;
+                authServiceFactory.authentication.userName = userName;
+            });
+    };  
     authServiceFactory.setUnauthenticatedUser = function () {
         authentication.isAuthenticated = false;
         authentication.userName = "";
-    }
+    };
 
     authServiceFactory.register = function (userInfo) {
         return $http.post(AppVariables.base_url + '/account/signup', userInfo).then(function (response) {
@@ -40,8 +67,17 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
     }
 
     authServiceFactory.logout = function() {
-        localStorageService.remove('authorizationData');
-        setUnauthenticatedUser();
+        var token = localStorageService.get('authorizationData').token;
+        $http.get(AppVariables.base_url + '/account/logout/'+token)
+            .then(function(status){
+                localStorageService.remove('authorizationData');
+                setUnauthenticatedUser();
+            },function(status){
+                if(status == 300){
+                    localStorageService.remove('authorizationData');
+                    setUnauthenticatedUser();
+                }
+            });        
     }
 
     authServiceFactory.fillAuth = function() {

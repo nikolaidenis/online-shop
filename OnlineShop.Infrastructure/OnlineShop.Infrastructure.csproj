@@ -58,6 +58,7 @@
     <Compile Include="Data\RoleRepository.cs" />
     <Compile Include="Data\UnitOfWork.cs" />
     <Compile Include="Data\UserRepository.cs" />
+    <Compile Include="Data\UserSessionsRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

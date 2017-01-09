@@ -29,6 +29,14 @@ shopApp.config([
 shopApp.config(function($httpProvider){
 });
 
-shopApp.run(['AuthApi', function(AuthApi){
+shopApp.run(['$rootScope','$location','AuthApi', function($rootScope,$location,AuthApi){
     AuthApi.fillAuth();
+    $rootScope.$on('$routeChangeStart', function(event){
+        
+        if(!AuthApi.isAuthenticated()){
+            console.log('deny');
+            event.stopPropagation();
+            $location.path('/login');
+        }
+    });
 }]);

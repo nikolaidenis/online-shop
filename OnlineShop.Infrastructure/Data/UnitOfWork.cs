@@ -13,7 +13,8 @@ namespace OnlineShop.Infrastructure.Data
         private IRoleRepository _roleRepository;
         private IProductRepository _productRepository;
         private IUserRepository _userRepository;
-        private IOperationsRepository _operationRepository; 
+        private IOperationsRepository _operationRepository;
+        private IUserSessionsRepository _userSessionsRepository;
 
         public IRoleRepository Roles => _roleRepository ?? (_roleRepository = new RoleRepository(Context));
 
@@ -23,6 +24,9 @@ namespace OnlineShop.Infrastructure.Data
 
         public IOperationsRepository Operations 
             => _operationRepository ?? (_operationRepository = new OperationsRepository(Context));
+
+        public IUserSessionsRepository UserSessions 
+            => _userSessionsRepository ?? (_userSessionsRepository = new UserSessionsRepository(Context));
 
         public static IUnitOfWork CreateContext(string connectionString)
         {

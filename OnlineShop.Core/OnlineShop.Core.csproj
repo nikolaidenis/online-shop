@@ -51,27 +51,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AspNetRole.cs">
-      <DependentUpon>ShopContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="AspNetUser.cs">
-      <DependentUpon>ShopContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="AspNetUserClaim.cs">
-      <DependentUpon>ShopContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="AspNetUserLogin.cs">
-      <DependentUpon>ShopContext.tt</DependentUpon>
-    </Compile>
-    <Compile Include="C__MigrationHistory.cs">
-      <DependentUpon>ShopContext.tt</DependentUpon>
-    </Compile>
     <Compile Include="Data\IOperationsRepository.cs" />
     <Compile Include="Data\IProductRepository.cs" />
     <Compile Include="Data\IRepository.cs" />
     <Compile Include="Data\IRoleRepository.cs" />
     <Compile Include="Data\IUnitOfWork.cs" />
     <Compile Include="Data\IUserRepository.cs" />
+    <Compile Include="Data\IUserSessionsRepository.cs" />
     <Compile Include="Operation.cs">
       <DependentUpon>ShopContext.tt</DependentUpon>
     </Compile>
@@ -98,6 +84,9 @@
       <DependentUpon>ShopContext.edmx</DependentUpon>
     </Compile>
     <Compile Include="User.cs">
+      <DependentUpon>ShopContext.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserSession.cs">
       <DependentUpon>ShopContext.tt</DependentUpon>
     </Compile>
   </ItemGroup>

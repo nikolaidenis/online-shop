@@ -1,6 +1,5 @@
 ﻿using OnlineShop.Core;
 using OnlineShop.Core.Data;
-using System;
 using System.Data.Entity;
 using System.Threading.Tasks;
 
@@ -17,10 +16,10 @@ namespace OnlineShop.Infrastructure.Data
             await Create(new UserSession { UserId = userId, Token = session, IsExpired = false });
         }
 
-        public async Task<int> GetActiveUserBySession(string session)
+        public async Task<bool> IsValidSession(int userId, string session)
         {
-            var sessionObj = await Get(p => p.Token == session && !p.IsExpired);
-            return sessionObj == null ? 0 : sessionObj.UserId;
+            var sessionObj = await Get(p => p.Token == session && p.UserId == userId &&!p.IsExpired);
+            return sessionObj != null;
         }
 
         public async Task SetSessionExpired(string session)
@@ -30,6 +29,12 @@ namespace OnlineShop.Infrastructure.Data
             sessionObj.IsExpired = true;
             await Update(sessionObj);
             await CommitAsync();
+        }
+
+        public async Task<int> GetUserByValidSession(string session)
+        {
+            var userId = await Get(p => p.Token == session && !p.IsExpired);
+            return userId?.Id ?? 0;
         }
     }
 }

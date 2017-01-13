@@ -1,16 +1,12 @@
-﻿var shopApp = angular.module("ShopApp", ["ngRoute", "ShopApp.config", "ProductService", "OperationService", 
+﻿var shopApp = angular.module("ShopApp", ["ngRoute",'ui.router', "ShopApp.config", "ProductService", "OperationService", 
                                                         "UserService","AuthInterceptorService","AuthService","LocalStorageModule"]);
 
 shopApp.config([
-    '$routeProvider', function ($routeProvider) {
+    '$routeProvider','$stateProvider','$urlRouterProvider', function ($routeProvider, $stateProvider,$urlRouterProvider) {
         $routeProvider
-            .when('/operations', {
-                templateUrl: 'app/templates/operations.html',
-                controller: 'OperationsController as operations'
-            })
-            .when('/archives', {
-                templateUrl: 'app/templates/archives.html',
-                controller: 'ArchivesController as archives'
+            .when('/main',{
+                    controller: 'TabsController',
+                    templateUrl:'app/templates/general_window.html'
             })
             .when('/login', {
                 templateUrl: 'app/templates/login.html',
@@ -19,24 +15,22 @@ shopApp.config([
             .when('/signup', {
                 templateUrl: 'app/templates/signup.html',
                 controller: 'SignupController as signupCtrl'
-            })
-            .otherwise({
-                redirectTo: '/login'
+            }).otherwise('/main');
+
+        $stateProvider.state('operations',{
+                url:'/operations',
+                controller:'OperationsController',
+                templateUrl:'app/templates/operations.html'
+            }).state('archives',{
+                url:'/archives',
+                controller:'ArchivesController',
+                templateUrl:'app/templates/archives.html'
             });
     }
 ]);
 
-shopApp.config(function($httpProvider){
-});
-
-shopApp.run(['$rootScope','$location','AuthApi', function($rootScope,$location,AuthApi){
-    AuthApi.fillAuth();
-    $rootScope.$on('$routeChangeStart', function(event){
-        
-        if(!AuthApi.isAuthenticated()){
-            console.log('deny');
-            event.stopPropagation();
-            $location.path('/login');
-        }
-    });
+shopApp.run(['$window', 'localStorageService', function($window, localStorageService){
+    $window.onbeforeunload = function () {
+          localStorageService.remove('authorizationData');
+      };
 }]);

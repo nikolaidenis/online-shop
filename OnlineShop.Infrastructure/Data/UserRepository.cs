@@ -53,10 +53,10 @@ namespace OnlineShop.Infrastructure.Data
             await CommitAsync();
         }
 
-        public async Task<int> AuthenticateUser(string login, string password)
+        public async Task<User> AuthenticateUser(string login, string password)
         {
             var user = await Get(usr => usr.UserName == login && usr.Password == password);
-            return user?.Id ?? 0;
+            return user;
         }
     }
 }

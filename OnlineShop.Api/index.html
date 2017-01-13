@@ -12,11 +12,6 @@
 
 <body >
     <div class="container">
-        <ul class="nav nav-tabs responsive" id="mainTab" ng-controller="TabsController">
-            <li ng-repeat="tab in tabs" role="presentation" ng-class="tabClass(tab)">
-                <a href='{{tab.link}}' ng-click="setSelectedTab(tab)">{{tab.label}}</a>
-            </li>
-        </ul>
         <div ng-view></div>
     </div>
 </body>
@@ -27,6 +22,7 @@
 <script src="scripts/bootstrap.js"></script>
 <script src="scripts/angular.js"></script>
 <script src="scripts/angular-route.js"></script>
+<script src="Scripts/angular-ui-router.min.js"></script>
 <script src="scripts/angular-local-storage.js"></script>
 <script src="app/app.js"></script>
 <script src="app/js/services/productService.js"></script>

@@ -235,6 +235,7 @@
     <Content Include="app\templates\archives.html" />
     <Content Include="app\js\services\authenticationService.js" />
     <Content Include="app\js\constants.js" />
+    <Content Include="app\templates\general_window.html" />
     <Content Include="app\templates\signup.html" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
@@ -276,6 +277,8 @@
     <Content Include="Scripts\angular-scenario.js" />
     <Content Include="Scripts\angular-touch.js" />
     <Content Include="Scripts\angular-touch.min.js" />
+    <Content Include="Scripts\angular-ui-router.js" />
+    <Content Include="Scripts\angular-ui-router.min.js" />
     <Content Include="Scripts\angular.js" />
     <Content Include="Scripts\angular.min.js" />
     <Content Include="Scripts\bootstrap.js" />
@@ -1044,14 +1047,15 @@
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Filters\AddChallengeToUnauthorizedUser.cs" />
     <Compile Include="Filters\AuthenticationErrorResult.cs" />
+    <Compile Include="Filters\CustomAuthorize.cs" />
     <Compile Include="Filters\CustomAuthenticationFilter.cs" />
     <Compile Include="Filters\CustomPrincipal.cs" />
-    <Compile Include="Helpers\ApplicationUserManager.cs" />
+    <Compile Include="Handlers\CustomMessageHandler.cs" />
     <Compile Include="Helpers\EmailService.cs" />
+    <Compile Include="Helpers\UserStoreService.cs" />
     <Compile Include="Models\ApplicationUser.cs" />
     <Compile Include="Models\AuthenticationModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
-    <Compile Include="Models\ModelFactory.cs" />
     <Compile Include="Models\OperationModel.cs" />
     <Compile Include="Models\PaymentModel.cs" />
     <Compile Include="Models\ProductModel.cs" />

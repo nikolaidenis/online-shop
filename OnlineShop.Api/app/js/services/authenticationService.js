@@ -5,39 +5,23 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
 
     authServiceFactory.authentication = {
         isAuthenticated: false,
-        userName: "",
-        userId:0,
+        userName: ""
     };
 
-    authServiceFactory.userId = function(){
-        return this.authentication.userId;
+    authServiceFactory.getUserId = function(){
+        return authServiceFactory.authentication.userId;
     };
 
     authServiceFactory.isAuthenticated = function(){
-
-        return this.authentication.isAuthenticated 
+        return authServiceFactory.authentication.isAuthenticated 
             && localStorageService.get('authorizationData')
-            && this.authentication.userId != 0;  
+            && authServiceFactory.authentication.userId != 0;  
     };
 
-    authServiceFactory.checkAuthenticationToken = function(){
-        var token = localStorageService.get('authorizationData').token;
-        $http.get(AppVariables.base_url + '/account/'+userId+'/'+token)
-            .then(function(status){
-                return true;
-            },function(status){
-                return false;
-            });
-    };
 
     authServiceFactory.setAuthenticatedUser = function(userName) {
-        var token = localStorageService.get('authorizationData').token;
-        $http.get(AppVariables.base_url + '/account/'+token)
-            .then(function(response){
-                authServiceFactory.authentication.userId = response.data;
-                authServiceFactory.authentication.isAuthenticated = true;
-                authServiceFactory.authentication.userName = userName;
-            });
+        authServiceFactory.authentication.isAuthenticated = true;
+        authServiceFactory.authentication.userName = userName;
     };  
     authServiceFactory.setUnauthenticatedUser = function () {
         authentication.isAuthenticated = false;
@@ -50,19 +34,23 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
         });
     };
 
+
     authServiceFactory.login = function (userData) {
         var deffer = $q.defer();
-        var obj = {
-            Username:userData.userName,
-            Password:userData.password
-        }
-        $http.post(AppVariables.base_url + '/account/login', JSON.stringify(obj), { headers: { 'Content-Type': 'application/JSON' } })
-        //$http.post(AppVariables.base_url + '/token', JSON.stringify(obj), { headers: { 'Content-Type': 'application/JSON' } })
-            .then(function (response) {
-                localStorageService.add('authorizationData', { token: response.data, username: userData.userName });
+        
+        var data = 'grant_type=password&username='+userData.userName+'&password='+userData.password;
+        $http.post(AppVariables.base_url + '/token', data, { headers: { 'Content-Type': 'x-www-form-urlencoded'  } })
+            .then(function(response){
+                localStorageService.add('authorizationData', { token: response.data.access_token, username: userData.userName });
                 authServiceFactory.setAuthenticatedUser(userData.userName);
+                alert('Login success');
                 deffer.resolve(response);
-            });
+            },function(error){ 
+                alert('Authorization fails');
+                deffer.reject();
+            }
+        );
+                
         return deffer.promise;
     }
 

@@ -15,7 +15,12 @@ namespace OnlineShop.Infrastructure.Data
 
         public async Task<IEnumerable<Role>> GetRoles()
         {
-            throw new NotImplementedException();
+            return await GetAll();
         }
+
+        public async Task<Role> GetRole(int id)
+        {
+            return await Get(p => p.Id == id);
+        } 
     }
 }

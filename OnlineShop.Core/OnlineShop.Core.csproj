@@ -58,6 +58,7 @@
     <Compile Include="Data\IUnitOfWork.cs" />
     <Compile Include="Data\IUserRepository.cs" />
     <Compile Include="Data\IUserSessionsRepository.cs" />
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Operation.cs">
       <DependentUpon>ShopContext.tt</DependentUpon>
     </Compile>

@@ -1,8 +1,15 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security.OAuth;
 using Microsoft.Practices.Unity;
+using OnlineShop.Api.Models;
+using OnlineShop.Core;
 using OnlineShop.Core.Data;
 
 namespace OnlineShop.Api.Providers
@@ -19,40 +26,42 @@ namespace OnlineShop.Api.Providers
 
         public override async Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
         {
-            string clientId, clientSecret;
-
-            if (context.TryGetBasicCredentials(out clientId, out clientSecret))
-            {
-                context.Validated();
-            }
-            else
-            {
-                context.SetError("invalid_client", "Client credentials could not be retrieved from the Authorization header");
-                context.Rejected();
-            }
-
+            context.Validated();
         }
 
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
             context.OwinContext.Response.Headers.Add("Access-Control-Allow-Origin", new[] { "*" });
 
-            var userId = await UnitOfWork.Users.AuthenticateUser(context.UserName, context.Password);
-            if (userId == 0)
+            try
             {
-                context.SetError("invalid_grant", "Invalid User Id or password'");
-                context.Rejected();
-                return;
+                //retrieve your user from database. ex:
+                var user = await UnitOfWork.Users.AuthenticateUser(context.UserName, context.Password);
+
+                var identity = new ClaimsIdentity(context.Options.AuthenticationType);
+
+                identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
+                identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+
+                var roles = new List<string>();
+
+                if (user.RoleId != 0)
+                {
+                    var role = await UnitOfWork.Roles.GetRole(user.RoleId);
+                    identity.AddClaim(new Claim(ClaimTypes.Role, role.Name));
+                    roles.Add(role.Name);
+                }
+
+                var principal = new GenericPrincipal(identity, roles.ToArray());
+
+                Thread.CurrentPrincipal = principal;
+
+                context.Validated(identity);
             }
-
-            var message = new IdentityMessage();
-            
-
-            var identity = new ClaimsIdentity(context.Options.AuthenticationType);
-            identity.AddClaim(new Claim("sub", context.UserName));
-            identity.AddClaim(new Claim("role", "user"));
-
-            context.Validated(identity);
+            catch (Exception ex)
+            {
+                context.SetError("invalid_grant", "message");
+            }
         }
     }
 }

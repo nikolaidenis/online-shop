@@ -1,30 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Web.Http;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Security;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using System.Web.Http;
-using System.Web.Mvc;
-using System.Web.UI.WebControls;
-using Microsoft.AspNet.Identity;
 using Microsoft.Practices.Unity;
-using Newtonsoft.Json;
 using OnlineShop.Api.Helpers;
 using OnlineShop.Api.Models;
-using OnlineShop.Api.Providers;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
 
 namespace OnlineShop.Api.Controllers
 {
-    [System.Web.Http.AllowAnonymous]
     public class AccountController : BaseController
     {
         [Dependency]
@@ -35,63 +25,62 @@ namespace OnlineShop.Api.Controllers
             UnitOfWork = unitOfWork;
         }
 
+        [AllowAnonymous]
         [Route("api/account/login")]
         public async Task<HttpResponseMessage> Login(AuthenticationModel model)
         {
-            var userId = await UnitOfWork.Users.AuthenticateUser(model.Username, model.Password);
-            if (userId == 0)
+            var user = await UnitOfWork.Users.AuthenticateUser(model.Username, model.Password);
+            if (user == null)
             {
-                Request.CreateErrorResponse(HttpStatusCode.Conflict, "wrong login or password");
+                return Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "wrong login or password");
             }
 
-            string token = GenerateToken();
-            await UnitOfWork.UserSessions.CreateNewSession(userId, token);
+            string tokenStr = GenerateToken();
+            await UnitOfWork.UserSessions.CreateNewSession(user.Id, tokenStr);
 
-            return Request.CreateResponse(HttpStatusCode.OK, token);
+            var returnObj = new {token = tokenStr, username = model.Username};
+
+            return Request.CreateResponse(HttpStatusCode.OK, returnObj);
         }
 
-        [Route("api/account/{session}")]
-        [System.Web.Http.HttpGet]
-        public async Task<HttpResponseMessage> GetUserBySession(string session)
+        [Route("api/account")]
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetUserBySession([FromUri]string session)
         {
             if (string.IsNullOrEmpty(session))
             {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "token cannot be empty");
+                return Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "token cannot be empty");
             }
-            var userId = await UnitOfWork.UserSessions.GetActiveUserBySession(session);
+            var userId = await UnitOfWork.UserSessions.GetUserByValidSession(session);
             
-            return Request.CreateResponse(HttpStatusCode.OK,userId);
+            return userId != 0 ? Request.CreateResponse(HttpStatusCode.OK,userId) : new HttpResponseMessage(HttpStatusCode.Unauthorized);
         }
 
-        [Route("api/account/logout/{session}")]
-        [System.Web.Http.HttpGet]
-        public async Task<HttpResponseMessage> Logout(string session)
+        [Route("api/account/logout")]
+        [HttpGet]
+        public async Task<HttpResponseMessage> Logout([FromUri]string session)
         {
             if (string.IsNullOrEmpty(session))
             {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "token cannot be empty");
-            }
-            var userId = await UnitOfWork.UserSessions.GetActiveUserBySession(session);
-            if(userId == 0)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.Ambiguous, "token already expired");
+                return Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "token cannot be empty");
             }
 
             await UnitOfWork.UserSessions.SetSessionExpired(session);
+
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         [Route("api/account/{userId:int}/{token}")]
-        [System.Web.Http.HttpGet]
+        [HttpGet]
         public async Task<HttpResponseMessage> CheckUserToken(int userId, string token)
         {
             if (string.IsNullOrEmpty(token))
             {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, "token cannot be empty");
+                return Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "token cannot be empty");
             }
-            var id = await UnitOfWork.UserSessions.GetActiveUserBySession(token);
+            var id = await UnitOfWork.UserSessions.GetUserByValidSession(token);
             return id == userId ? Request.CreateResponse(HttpStatusCode.OK) 
-                : Request.CreateErrorResponse(HttpStatusCode.Ambiguous, "no token assosiated with user " + userId);
+                : Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "invalid session for current user");
         }
 
         [Route("api/account/signup")]
@@ -133,7 +122,7 @@ namespace OnlineShop.Api.Controllers
 
         
         [Route("api/confirmation")]
-        [System.Web.Http.HttpGet]
+        [HttpGet]
         public async Task<HttpResponseMessage> ConfirmEmail(string id, string code)
         {
             var userId = Convert.ToInt32(id);
@@ -167,7 +156,7 @@ namespace OnlineShop.Api.Controllers
             byte[] time = BitConverter.GetBytes(DateTime.UtcNow.ToBinary());
             byte[] key = Guid.NewGuid().ToByteArray();
             string token = Convert.ToBase64String(time.Concat(key).ToArray());
-            return token;
+            return HttpUtility.UrlEncode(token);
         }
 
         private string GenerateConfirmationToken(int id, string name)
@@ -177,18 +166,6 @@ namespace OnlineShop.Api.Controllers
                 var hash = md5.ComputeHash(Encoding.Default.GetBytes(id + name));
                 return new Guid(hash).ToString().Replace("-","");
             }
-        }
-
-        private int ParseConfirmationToken(string token)
-        {
-            var bytes = new byte[token.Length];
-            var charArr = token.ToCharArray();
-            for (int i = 0; i < token.Length; i++)
-            {
-                bytes[i] = (byte) charArr[i];
-                bytes[i] -= 48;
-            }
-            return Convert.ToInt32(bytes);
         }
 
         private bool IsOldToken(string token)

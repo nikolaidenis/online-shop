@@ -1,0 +1,6 @@
+<ul class="nav nav-tabs responsive" id="mainTab">
+    <li ng-repeat="tab in tabs" role="presentation"  heading="{{tab.label}}">
+    <a ui-sref="{{tab.route}}">{{tab.label}}</a>    
+  	</li>
+</ul>
+<ui-view></ui-view>

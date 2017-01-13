@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Net.Http.Formatting;
 using System.Web.Http;
+using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json.Serialization;
 using OnlineShop.Api.App_Start;
 using OnlineShop.Api.Filters;
@@ -28,8 +29,12 @@ namespace OnlineShop.Api
                 defaults: new {id = RouteParameter.Optional}
                 );
 
+            config.SuppressDefaultHostAuthentication();
+            config.Filters.Add(new HostAuthenticationFilter(OAuthDefaults.AuthenticationType));
+
             var container = UnityConfig.GetConfiguredContainer();
             config.DependencyResolver = new UnityResolver(container);
+
             var jsonFormatter = config.Formatters.OfType<JsonMediaTypeFormatter>().First();
             jsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
         }

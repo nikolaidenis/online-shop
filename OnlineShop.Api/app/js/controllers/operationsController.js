@@ -3,6 +3,7 @@
     ['$scope', 'ProductApi', 'OperationApi', 'AuthApi', 'UserApi','$q',
      function ($scope, ProductApi, OperationApi, AuthApi, UserApi,$q) {
          $scope.productCountList = [];
+         
          getAllProducts();
          getUser();
 
@@ -23,7 +24,7 @@
          }
 
          function getUser() {
-             UserApi.getUserData(AuthApi.userId()).success(function (user) {
+             UserApi.getUserData().success(function (user) {
                  $scope.user = user;
              }).error(function (error) {
                  $scope.status = "Unable to retrieve user data: " + error.Message;
@@ -31,7 +32,7 @@
          }
 
          function getUserOperations() {
-             OperationApi.getOperations(AuthApi.userId()).success(function (operations) {
+             OperationApi.getOperations($scope.userId).success(function (operations) {
                  $scope.operations = operations;
                  countOperations();
              }).error(function (error) {
@@ -55,13 +56,13 @@
 
          $scope.purchase = function (product) {
              var purchaseObj = {
-                 'UserId': AuthApi.userId(),
+                 'UserId': $scope.userId,
                  'ProductId': product.Id,
                  'Amount': product.Cost,
                  'IsSelled': false
              }
              var paymentObj = {
-                 'UserId': AuthApi.userId(),
+                 'UserId': $scope.userId,
                  'Amount': product.Cost
              }
              UserApi.debitBalance(paymentObj).then(
@@ -77,7 +78,7 @@
                  }
              );
          }
-         $scope.chargeUserBalance = function (userId) {
+         $scope.chargeUserBalance = function () {
              var amount = prompt("Enter amount:", "0");
              if (!amount) {
                  return;
@@ -87,7 +88,7 @@
                  return;
              }
              var payment = {
-                 'UserId': userId,
+                 'UserId': $scope.userId,
                  'Amount': amount
              }
 
@@ -105,7 +106,7 @@
                  if ($scope.operations[i].ProductId === productId
                         && $scope.operations[i].IsSelled == false) {
                      var payment = {
-                         'UserId': $scope.operations[i].UserID,
+                         'UserId': $scope.operations[i].$scope.UserID,
                          'Amount': $scope.operations[i].Amount
                      }
                      UserApi.chargeBalance(payment)

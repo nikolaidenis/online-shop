@@ -9,7 +9,7 @@ using OnlineShop.Api.Filters;
 using OnlineShop.Api.Models;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
-using OnlineShop.Infrastructure.Data;
+using OnlineShop.Api.Filters;
 
 namespace OnlineShop.Api.Controllers
 {

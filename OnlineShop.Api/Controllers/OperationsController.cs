@@ -16,6 +16,7 @@ using OnlineShop.Infrastructure.Data;
 
 namespace OnlineShop.Api.Controllers
 {
+    [Authorize]
     public class OperationsController : BaseController
     {
         [Dependency]
@@ -66,7 +67,6 @@ namespace OnlineShop.Api.Controllers
             return Request.CreateResponse(HttpStatusCode.OK);
         }
         
-        [Authorize]
         [Route("api/operation/{userId:int}/{pageNum:int}/{rowsCount:int}")]
         public async Task<HttpResponseMessage> GetOperations(int userId, int pageNum = 1, int rowsCount = 5)
         {

@@ -61,7 +61,7 @@ namespace OnlineShop.Infrastructure.Data
             _disposed = true;
         }
 
-        public void Dispose()
+        public new void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);

@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
+
 
 namespace OnlineShop.Infrastructure.Data
 {
@@ -16,7 +18,6 @@ namespace OnlineShop.Infrastructure.Data
         {
             return await GetAll();
         }
-
         public Task<Product> GetProduct(int id)
         {
             throw new System.NotImplementedException();

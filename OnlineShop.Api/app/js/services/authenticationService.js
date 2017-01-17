@@ -3,29 +3,36 @@ var app = angular.module("AuthService", ["ShopApp.config"]);
 app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', function ($http, $q, AppVariables, localStorageService) {
     var authServiceFactory = {};
 
-    authServiceFactory.authentication = {
+    authServiceFactory.user = {
         isAuthenticated: false,
-        userName: ""
+        name: "",
+        role:"",
+        id: 0
     };
 
-    authServiceFactory.getUserId = function(){
-        return authServiceFactory.authentication.userId;
+    authServiceFactory.getUserId = function () {
+        return authServiceFactory.user.id;
     };
 
-    authServiceFactory.isAuthenticated = function(){
-        return authServiceFactory.authentication.isAuthenticated 
+    authServiceFactory.setUserId = function (id) {
+        authServiceFactory.user.id = id;
+    };
+
+    authServiceFactory.isAuthenticated = function () {
+        return authServiceFactory.user.isAuthenticated
             && localStorageService.get('authorizationData')
-            && authServiceFactory.authentication.userId != 0;  
+            && authServiceFactory.user.id !== 0;
     };
 
 
-    authServiceFactory.setAuthenticatedUser = function(userName) {
-        authServiceFactory.authentication.isAuthenticated = true;
-        authServiceFactory.authentication.userName = userName;
-    };  
+    authServiceFactory.setAuthenticatedUser = function (username, role) {
+        authServiceFactory.user.isAuthenticated = true;
+        authServiceFactory.user.name = username;
+        authServiceFactory.user.role = role;
+    };
     authServiceFactory.setUnauthenticatedUser = function () {
-        authentication.isAuthenticated = false;
-        authentication.userName = "";
+        authServiceFactory.user.isAuthenticated = false;
+        authServiceFactory.user.name = "";
     };
 
     authServiceFactory.register = function (userInfo) {
@@ -34,45 +41,54 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
         });
     };
 
-
     authServiceFactory.login = function (userData) {
         var deffer = $q.defer();
-        
-        var data = 'grant_type=password&username='+userData.userName+'&password='+userData.password;
-        $http.post(AppVariables.base_url + '/token', data, { headers: { 'Content-Type': 'x-www-form-urlencoded'  } })
-            .then(function(response){
-                localStorageService.add('authorizationData', { token: response.data.access_token, username: userData.userName });
-                authServiceFactory.setAuthenticatedUser(userData.userName);
-                alert('Login success');
-                deffer.resolve(response);
-            },function(error){ 
+
+        var data = 'grant_type=password&username=' + userData.userName + '&password=' + userData.password;
+        $http.post(AppVariables.base_url + '/token', data, { headers: { 'Content-Type': 'x-www-form-urlencoded' } })
+            .then(function (response) {
+                localStorageService.add('authorizationData', { token: response.data.access_token, username: userData.userName, role: response.data.role });
+                authServiceFactory.fillIdentityInfo().then(function () {
+                    authServiceFactory.setAuthenticatedUser(userData.userName,response.data.role);
+                    alert('Login success');
+                    deffer.resolve(response);
+                }, function(error) {
+                    alert('Could not find additional info about user. Abort..');
+                    localStorageService.remove('authorizationData');
+                    authServiceFactory.setUnauthenticatedUser();
+                });
+            }, function (error) {
                 alert('Authorization fails');
                 deffer.reject();
             }
         );
-                
+
         return deffer.promise;
     }
 
-    authServiceFactory.logout = function() {
-        var token = localStorageService.get('authorizationData').token;
-        $http.get(AppVariables.base_url + '/account/logout/'+token)
-            .then(function(status){
-                localStorageService.remove('authorizationData');
-                setUnauthenticatedUser();
-            },function(status){
-                if(status == 300){
-                    localStorageService.remove('authorizationData');
-                    setUnauthenticatedUser();
-                }
-            });        
+    authServiceFactory.logout = function () {
+        localStorageService.remove('authorizationData');
+        authServiceFactory.setUnauthenticatedUser();
     }
 
-    authServiceFactory.fillAuth = function() {
+    authServiceFactory.fillIdentityInfo = function () {
+        var deffer = $q.defer();
         var data = localStorageService.get('authorizationData');
         if (data) {
-            authServiceFactory.setAuthenticatedUser(data.username);
+            $http.get(AppVariables.base_url + '/account/' + data.username)
+                .then(function(response) {
+                    authServiceFactory.setUserId(response.data);
+                    authServiceFactory.setAuthenticatedUser(data.username, data.role);
+                    deffer.resolve(response);
+                }, function(error) {
+                    alert('Authorization fails');
+                    deffer.reject();
+                });
+        } else {
+            authServiceFactory.setUnauthenticatedUser();
+            deffer.reject();
         }
+        return deffer.promise;
     }
 
     return authServiceFactory;

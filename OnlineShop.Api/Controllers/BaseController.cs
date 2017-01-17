@@ -7,6 +7,7 @@ using OnlineShop.Api.Models;
 
 namespace OnlineShop.Api.Controllers
 {
+    [Authorize]
     public class BaseController : ApiController
     {
         

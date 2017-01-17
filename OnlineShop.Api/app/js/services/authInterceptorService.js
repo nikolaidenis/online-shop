@@ -9,11 +9,8 @@ app.factory('InterceptorApi', ['$q', '$injector', '$location', 'localStorageServ
 			
 			var authData = localStorageService.get('authorizationData');
 			if(authData){
-				if(config.url.indexOf('/api/token') > 0){
-					alert('Authenticated! Redirect...');
-					$location.path('/main');					
-				}
 				config.headers.Authorization = 'Bearer ' + authData.token;
+				return config;
 			}
 
 			return config;

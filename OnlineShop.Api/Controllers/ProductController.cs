@@ -9,11 +9,11 @@ using OnlineShop.Api.Filters;
 using OnlineShop.Api.Models;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
-using OnlineShop.Api.Filters;
+using OnlineShop.Api.Hubs;
 
 namespace OnlineShop.Api.Controllers
 {
-    public class ProductController : BaseController
+    public class ProductController : HubController<CustomHub>
     {
         [Dependency]
         private IUnitOfWork UnitOfWork { get; }
@@ -24,6 +24,10 @@ namespace OnlineShop.Api.Controllers
         
         public async Task<HttpResponseMessage> Get()
         {
+
+
+
+
             var products = await UnitOfWork.Products.GetProducts();
             Mapper.Initialize(expression => expression.CreateMap(typeof(Product), typeof(ProductModel)));
             var productsModel = Mapper.Map<IEnumerable<Product>,List<ProductModel>>(products);

@@ -96,3 +96,9 @@ D:\projects\OnlineShop\OnlineShop.Api\bin\System.Web.WebPages.Razor.xml
 D:\projects\OnlineShop\OnlineShop.Api\obj\Debug\OnlineShop.Api.csprojResolveAssemblyReference.cache
 D:\projects\OnlineShop\OnlineShop.Api\obj\Debug\OnlineShop.Api.dll
 D:\projects\OnlineShop\OnlineShop.Api\obj\Debug\OnlineShop.Api.pdb
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.SignalR.Core.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.SignalR.SystemWeb.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.SignalR.Core.xml
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.SignalR.SystemWeb.xml
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.SignalR.Owin.dll
+D:\projects\OnlineShop\OnlineShop.Api\bin\Microsoft.AspNet.SignalR.Owin.xml

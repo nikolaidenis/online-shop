@@ -24,6 +24,12 @@ namespace OnlineShop.Infrastructure.Data
             return await Get(user => user.Id == id);
         }
 
+        public async Task<User> GetUser(string username)
+        {
+            var id = await Get(p => p.UserName == username);
+            return id;
+        }
+
         public async Task<User> ModifyUser(int id)
         {
             var user = await Get(usr => usr.Id == id);

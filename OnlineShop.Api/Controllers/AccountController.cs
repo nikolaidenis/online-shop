@@ -43,17 +43,17 @@ namespace OnlineShop.Api.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, returnObj);
         }
 
-        [Route("api/account")]
+        [Route("api/account/{username}")]
         [HttpGet]
-        public async Task<HttpResponseMessage> GetUserBySession([FromUri]string session)
+        public async Task<HttpResponseMessage> GetUserBySession(string username)
         {
-            if (string.IsNullOrEmpty(session))
+            if (string.IsNullOrEmpty(username))
             {
-                return Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "token cannot be empty");
+                return Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Missing username");
             }
-            var userId = await UnitOfWork.UserSessions.GetUserByValidSession(session);
+            var user = await UnitOfWork.Users.GetUser(username);
             
-            return userId != 0 ? Request.CreateResponse(HttpStatusCode.OK,userId) : new HttpResponseMessage(HttpStatusCode.Unauthorized);
+            return user.Id != 0 ? Request.CreateResponse(HttpStatusCode.OK, user.Id) : new HttpResponseMessage(HttpStatusCode.Unauthorized);
         }
 
         [Route("api/account/logout")]
@@ -83,6 +83,7 @@ namespace OnlineShop.Api.Controllers
                 : Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "invalid session for current user");
         }
 
+        [AllowAnonymous]
         [Route("api/account/signup")]
         public async Task<HttpResponseMessage> Signup(SignupModel model)
         {

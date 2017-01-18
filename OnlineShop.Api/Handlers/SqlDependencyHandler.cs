@@ -13,13 +13,16 @@ namespace OnlineShop.Api.Handlers
     public class SqlDependencyHandler
     {
         private static string ConnectionString { get; set; }
+
+        public static void Register()
+        {
+            Register(ConnectionString);
+        }
         public static void Register(string connectionString)
         {
             ConnectionString = connectionString;
-            //We have selected the entire table as the command, so SQL Server executes this script and sees if there is a change in the result, raise the event
-            string commandText = @"SELECT * FROM [OnlineShop].[dbo].[Products]";
+            string commandText = @"SELECT [Id], [Cost] FROM [dbo].[Products]";
 
-            //Start the SQL Dependency
             SqlDependency.Start(ConnectionString);
             using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
@@ -28,12 +31,12 @@ namespace OnlineShop.Api.Handlers
                 {
                     command.Notification = null;
                     var sqlDependency = new SqlDependency(command);
-
-                    if (connection.State == ConnectionState.Closed)
-                        connection.Open();
                     sqlDependency.OnChange += sqlDependency_OnChange;
+                    if (connection.State == ConnectionState.Closed)
+                    {
+                        connection.Open();
+                    }
 
-                    // NOTE: You have to execute the command, or the notification will never fire.
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                     }
@@ -44,6 +47,7 @@ namespace OnlineShop.Api.Handlers
         private static void sqlDependency_OnChange(object sender, SqlNotificationEventArgs e)
         {
             CustomHub.UpdateProductCosts();
+            Register();
         }
     }
 }

@@ -49,8 +49,8 @@ shopApp.run(['$window', '$rootScope', '$location', 'localStorageService',
             //    }
             //});
 
-            $window.onbeforeunload = function () {
-                localStorageService.remove('authorizationData');
+            $window.onunload = function () {
+                sessionStorage.remove('authorizationData');
             };
         }
 ]);

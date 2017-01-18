@@ -24,10 +24,6 @@ namespace OnlineShop.Api.Controllers
         
         public async Task<HttpResponseMessage> Get()
         {
-
-
-
-
             var products = await UnitOfWork.Products.GetProducts();
             Mapper.Initialize(expression => expression.CreateMap(typeof(Product), typeof(ProductModel)));
             var productsModel = Mapper.Map<IEnumerable<Product>,List<ProductModel>>(products);

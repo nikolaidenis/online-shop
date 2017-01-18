@@ -1,7 +1,7 @@
 ﻿<div>    
     <div class="square" ng-repeat="product in products">
-        {{product.name}}
-        {{product.cost}}
+        <label ng-bind="product.name"></label>
+        <label ng-bind="product.cost"></label>
         <input type="button" value="Buy" ng-click="purchase(product)"/>
     </div>
     <hr/>

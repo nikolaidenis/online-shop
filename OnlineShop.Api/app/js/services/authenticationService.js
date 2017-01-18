@@ -10,6 +10,18 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
         id: 0
     };
 
+    authenticationFactory.function(){
+        var defer = $q.defer();
+        data = sessionStorage.get('authorizationData');
+        if(data){
+            $http.get(AppVariables.base_url+'/account/'+data.username)
+                .success(function(id){
+                    authServiceFactory.user.id = 
+                })
+        }
+        return defer.promise;
+    };
+
     authServiceFactory.getUserId = function () {
         return authServiceFactory.user.id;
     };
@@ -20,7 +32,7 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
 
     authServiceFactory.isAuthenticated = function () {
         return authServiceFactory.user.isAuthenticated
-            && localStorageService.get('authorizationData')
+            && sessionStorage.get('authorizationData')
             && authServiceFactory.user.id !== 0;
     };
 
@@ -47,14 +59,14 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
         var data = 'grant_type=password&username=' + userData.userName + '&password=' + userData.password;
         $http.post(AppVariables.base_url + '/token', data, { headers: { 'Content-Type': 'x-www-form-urlencoded' } })
             .then(function (response) {
-                localStorageService.add('authorizationData', { token: response.data.access_token, username: userData.userName, role: response.data.role });
+                sessionStorage.add('authorizationData', { token: response.data.access_token, username: userData.userName, role: response.data.role });
                 authServiceFactory.fillIdentityInfo().then(function () {
                     authServiceFactory.setAuthenticatedUser(userData.userName,response.data.role);
                     alert('Login success');
                     deffer.resolve(response);
                 }, function(error) {
                     alert('Could not find additional info about user. Abort..');
-                    localStorageService.remove('authorizationData');
+                    sessionStorage.remove('authorizationData');
                     authServiceFactory.setUnauthenticatedUser();
                 });
             }, function (error) {
@@ -67,13 +79,13 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
     }
 
     authServiceFactory.logout = function () {
-        localStorageService.remove('authorizationData');
+        sessionStorage.remove('authorizationData');
         authServiceFactory.setUnauthenticatedUser();
     }
 
     authServiceFactory.fillIdentityInfo = function () {
         var deffer = $q.defer();
-        var data = localStorageService.get('authorizationData');
+        var data = sessionStorage.get('authorizationData');
         if (data) {
             $http.get(AppVariables.base_url + '/account/' + data.username)
                 .then(function(response) {

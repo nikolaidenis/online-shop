@@ -22,9 +22,10 @@ namespace OnlineShop.Api
         
         public void Configuration(IAppBuilder app)
         {
+            
+            app.MapSignalR();
             var config = new HttpConfiguration();
             WebApiConfig.Register(config);
-            app.MapSignalR();
             ConfigureOAuth(app, config);
             app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
             app.UseWebApi(config);

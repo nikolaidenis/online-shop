@@ -1,40 +1,45 @@
-﻿
-    angular.module("ShopApp")
+﻿    angular.module("ShopApp")
         .controller('OperationsController', [
             '$scope', 'ProductApi', 'OperationApi', 'AuthApi', 'UserApi', '$q',
             function($scope, ProductApi, OperationApi, AuthApi, UserApi, $q) {
                 $scope.productCountList = [];
                 var userId = AuthApi.user.id;
 
-//                getAllProducts();
-//                getUser();
+                enableHub();
+                
+                getAllProducts().then(
+                    function(){
+                        getUser();
+                        getUserOperations();
+                    });
 
-                $scope.prodHub = $.connection.customHub; // initializes hub
+                
 
-                $scope.prodHub.client.updateCosts = function () {
-                    alert('Updated');
-                };
-
-                $.connection.hub.start().done(function() {
-                    alert('Hub started');
-
-                });
-
+                function enableHub(){
+                    $scope.prodHub = $.connection.customHub; 
+                    $scope.prodHub.client.updateCosts = function () {
+                        updateUserData();
+                        $scope.$digest();
+                    };
+                    $.connection.hub.start();
+                }
 
                 function updateUserData() {
-                    getUser();
-                    getUserOperations();
+                    getAllProducts();
                 };
 
                 function getAllProducts() {
+                    var defer = $q.defer();
                     ProductApi.getProducts()
                         .success(function(products) {
                             $scope.products = products;
-                            getUserOperations();
+                            defer.resolve(products);
                         })
                         .error(function(error) {
                             $scope.status = "Unable to retrieve products data: " + error.Message;
+                            defer.reject;
                         });
+                    return defer.promise;
                 };
 
                 function getUser() {

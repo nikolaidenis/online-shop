@@ -7,7 +7,7 @@ app.factory('InterceptorApi', ['$q', '$injector', '$location', 'localStorageServ
 		InterceptorApi.request = function(config){
 			config.headers = config.headers || {};
 			
-			var authData = sessionStorage.get('authorizationData');
+			var authData = localStorageService.get('authorizationData');
 			if(authData){
 				config.headers.Authorization = 'Bearer ' + authData.token;
 				return config;
@@ -18,7 +18,7 @@ app.factory('InterceptorApi', ['$q', '$injector', '$location', 'localStorageServ
 		
 		InterceptorApi.responseError = function(rejection){
 			if(rejection.status === 401){
-				sessionStorage.remove('authorizationData');
+				localStorageService.remove('authorizationData');
 				$location.path('/login');
 			}
 

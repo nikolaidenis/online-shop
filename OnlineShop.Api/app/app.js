@@ -1,4 +1,4 @@
-﻿var shopApp = angular.module("ShopApp", ["ngRoute", 'ui.router', "ShopApp.config", "ProductService", "OperationService",
+﻿var shopApp = angular.module("ShopApp", ["ngRoute",'chart.js', 'ui.router', "ShopApp.config", "ProductService", "OperationService",
                                                         "UserService", "AuthInterceptorService", "AuthService", "LocalStorageModule"]);
 
 shopApp.config([
@@ -22,9 +22,13 @@ shopApp.config([
             }).otherwise('/main');
 
         $stateProvider.state('operations', {
-            url: '/operations',
-            controller: 'OperationsController',
-            templateUrl: 'app/templates/operations.html'
+            views:{
+                "":{
+                    url: '/operations',
+                    controller: 'OperationsController',                        
+                    templateUrl: 'app/templates/operations.html'
+                }
+            }
         }).state('archives', {
             url: '/archives',
             controller: 'ArchivesController',
@@ -33,8 +37,9 @@ shopApp.config([
     }
 ]);
 
-shopApp.run(['$window', '$rootScope', '$location', 'localStorageService',
-        function ($window, $rootScope, $location, localStorageService) {
+shopApp.run(['$window', '$rootScope', '$location', 'localStorageService','AuthApi',
+        function ($window, $rootScope, $location, localStorageService,AuthApi) {
+            AuthApi.fillIdentityInfo();            
 //            AuthApi.fillAuth();
 
             //$rootScope.$on('$routeChangeStart', function (e, next, current) {

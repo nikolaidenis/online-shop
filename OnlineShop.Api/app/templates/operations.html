@@ -1,5 +1,5 @@
 ﻿<div>    
-    <div class="square" ng-repeat="product in vm.products">
+    <div class="square" ng-repeat="product in products">
         {{product.name}}
         {{product.cost}}
         <input type="button" value="Buy" ng-click="purchase(product)"/>
@@ -9,7 +9,7 @@
     <p>{{user.username}}</p>
     Balance:
     <p>{{user.balance}}</p>
-    <p ng-repeat="product in vm.products">
+    <p ng-repeat="product in products">
         {{product.name}} - {{productCountList[product.id].length}} - <input type="button" value="Sell" ng-click="sellLastProduct(product.id)"/>
     </p>
     <input type="button" value="Fill balance" ng-click="chargeUserBalance(user.id)"/>
@@ -18,11 +18,20 @@
             chart-data="productData" chart-labels="productLabels" chart-options="options">
         </canvas> 
     </div>
-<!--
-    <p ng-repeat="operation in operations">
-        {{operation.userId}}
-        {{operation.productId}}
-        {{operation.amount}}
-    </p>
--->
+
+    <div>
+        <p>Recent Activities</p>
+        <div ng-repeat="obj in productStatisticList">
+            <p> {{obj.numBought}} items of {{obj.productName}} were bought</p>
+            <p> {{obj.numSold}} items of {{obj.productName}} were sold</p>
+        </div>
+    </div>
+
+    <div>
+        <p>Profit</p>
+        <div ng-repeat="obj in productProfitList">
+            <p> {{obj.productName}} : {{obj.profit}}$</p>
+        </div>
+    </div>
+
 </div>

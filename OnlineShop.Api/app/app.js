@@ -31,7 +31,6 @@ shopApp.config([
             }
         }).state('archives', {
             url: '/archives',
-            controller: 'ArchivesController',
             templateUrl: 'app/templates/archives.html'
         });
     }
@@ -39,20 +38,7 @@ shopApp.config([
 
 shopApp.run(['$window', '$rootScope', '$location', 'localStorageService','AuthApi',
         function ($window, $rootScope, $location, localStorageService,AuthApi) {
-            AuthApi.fillIdentityInfo();            
-//            AuthApi.fillAuth();
-
-            //$rootScope.$on('$routeChangeStart', function (e, next, current) {
-            //    if (!localStorageService.get('authorizationData')
-            //            && next.originalPath && next.originalPath.indexOf('/login') === -1) {
-            //        e.preventDefault();
-            //        $location.path('/login');
-            //    } else if (localStorageService.get('authorizationData')
-            //        &&  next.originalPath && next.originalPath.indexOf('/login') !== -1) {
-            //        alert('Authoorized user, log out first!');
-            //        e.preventDefault();
-            //    }
-            //});
+            AuthApi.fillIdentityInfo();  
 
             $window.onunload = function () {
                 sessionStorage.remove('authorizationData');

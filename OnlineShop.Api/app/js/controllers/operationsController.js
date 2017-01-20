@@ -5,36 +5,70 @@
                 var scope = $scope;
 
                 scope.productCountList = [];
-                scope.vm = {};
-                scope.chart = {};
-                scope.vm.products = [];
 
-                scope.$on('chart-create', function(e, cht){
-                    
-                });
+                scope.productStatisticList = {};    
+                scope.productProfitList = {};            
+
+                scope.chart = {};
+                scope.products = [];
 
                 var userId = AuthApi.user.id;
 
-                function init(){
-                    var defer = $q.defer();
+                init();
 
-                    scope.getAllProducts();
-                    getUser().then(function(){
-                        getUserOperations().then(function(){
-                            scope.drawCanvas();
-                        });
-                    });
-                    defer.resolve(true);
-
-                    return defer.promise;
+                function initializeProfit(){
+                    for(var i=0; i<scope.products.length; i++){
+                        var obj = {
+                            productName:scope.products[i].name,
+                            profit:0
+                        };
+                        scope.productProfitList[scope.products[i].id] = obj;
+                    }
                 };
 
-                scope.drawCanvas = function(){
+                function initializeStatistic(){
+                    for(var i=0; i<scope.products.length; i++){
+                        var obj = {
+                            productName:scope.products[i].name,
+                            numBought:0,
+                            numSold:0
+                        };
+                        scope.productStatisticList[scope.products[i].id] = obj;
+                    }
+                };
+
+                
+                scope.trackSold = function(productId){
+                    ++scope.productStatisticList[productId].numSold;
+                };
+                scope.trackBought = function(productId){
+                    ++scope.productStatisticList[productId].numBought;
+                };
+
+                scope.countProfit = function(productId, productCost){
+                    var obj = scope.getProduct(productId);
+                    scope.productProfitList[productId].profit += obj.cost - productCost;
+                };
+
+                function init(){
+                    getAllProducts(function(){   
+                        getUser();
+                        getUserOperations(function(){                            
+                            countOperations();          
+                            drawCanvas();
+                        });                              
+                        enableHub();
+                        initializeStatistic();
+                        initializeProfit();
+                    });
+                };
+
+                function drawCanvas(){
                     scope.productLabels = [];
                     scope.productData = [];
-                    for(var i = 0; i <scope.vm.products.length; i++){
-                        scope.productLabels.push(scope.vm.products[i].name);
-                        var id = scope.vm.products[i].id;
+                    for(var i = 0; i <scope.products.length; i++){
+                        scope.productLabels.push(scope.products[i].name);
+                        var id = scope.products[i].id;
                         scope.productData.push(scope.productCountList[id].length);
                     }
                         
@@ -45,68 +79,78 @@
                 };
 
                 function updateUserData() {
-                    getUser().then(function(){
-                        getUserOperations().then(function(){
-                            scope.drawCanvas();
-                        });
-                    });
+                    getUser();
+                    getUserOperations(function(){                            
+                        countOperations();          
+                        drawCanvas();
+                    });                
                 };
 
                 function enableHub(){
                     scope.prodHub = $.connection.customHub; 
                     scope.prodHub.client.updateCosts = function () {
-                        scope.getAllProducts().then(function(){
-                            scope.$apply();
-                        });
-                        
+                        getAllProducts(function(){
+                            $rootScope.$apply();
+                        });                        
                     };
                     $.connection.hub.start();
-                    //alert('HUB_ENABLED');
                 };
 
-                scope.getAllProducts = function () {
+                function getAllProducts(callback) {
                     var defer = $q.defer();
                     ProductApi.getProducts()
                         .success(function(products) {
-                            scope.vm.products = products;                            
+                            scope.products = products;                            
                             defer.resolve(products);
+                            callback();
+                            return defer.promise;
                         })
                         .error(function(error) {
                             scope.status = "Unable to retrieve products data: " + error.Message;
-                            defer.reject();
+                            defer.reject();                            
+                            return defer.promise;
                         });
-                    return defer.promise;
                 };
+
+                scope.getProduct = function(id){
+                    for(var i = 0; i < scope.products.length; i++){
+                        if(scope.products[i].id === id){
+                            return scope.products[i];
+                        }
+                    }
+                }
 
                 function getUser() {
                     var defer = $q.defer();
                     UserApi.getUserData(userId).success(function(user) {
                         scope.user = user;
                         defer.resolve(user);
+                        return defer.promise;
                     }).error(function(error) {
                         scope.status = "Unable to retrieve user data: " + error.Message;
                         defer.reject();
+                        return defer.promise;
                     });
-                    return defer.promise;
                 };
 
-                function getUserOperations() {
+                function getUserOperations(callback) {
                     var defer = $q.defer();
                     OperationApi.getOperations(userId).success(function(operations) {
                         scope.operations = operations;
                         defer.resolve(operations);
-                        countOperations();
+                        callback();
+                        return defer.promise;
                     }).error(function(error) {
                         scope.status = "Unable to retrieve operations data: " + error.Message;
                         defer.reject();
+                        return defer.promise;
                     });
-                    return defer.promise;
                 };
 
                 function countOperations() {
-                    for (var productIndex = 0; productIndex < scope.vm.products.length; productIndex++) {
+                    for (var productIndex = 0; productIndex < scope.products.length; productIndex++) {
                         var collection = [];
-                        var id = scope.vm.products[productIndex].id;
+                        var id = scope.products[productIndex].id;
                         for (var i = 0; i < scope.operations.length; i++) {
                             if (scope.operations[i].productId === id
                                 && scope.operations[i].isSelled == false) {
@@ -131,6 +175,7 @@
                     UserApi.debitBalance(paymentObj).then(
                         function() {
                             OperationApi.postPurchase(purchaseObj).success(function() {
+                                scope.trackBought(product.id);
                                 updateUserData();
                                 alert("Purchase completed");
                             }).error(function(error) {
@@ -176,7 +221,9 @@
                                 .success(function() {
                                     OperationApi.postSale(scope.operations[i])
                                         .success(function() {
+                                            scope.trackSold(productId);
                                             updateUserData();
+                                            scope.countProfit(productId, scope.operations[i].amount);
                                             alert("Sell succeed!");
                                         })
                                         .error(function() {
@@ -190,8 +237,5 @@
                     }
                 };
 
-                init().then(function(){
-                    enableHub();
-                });
             }
         ]);

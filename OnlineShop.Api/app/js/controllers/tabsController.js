@@ -2,8 +2,8 @@
 .controller('TabsController', ['$scope', '$state', function ($scope, $state) {
     $state.current.name = 'main';
     $scope.tabs = [
-        { route:'operations', label: 'Operations'},
-        { route:'archives', label: 'Archive' }
+        { name:'operations', label: 'Operations'},
+        { name:'archives', label: 'Archive' }
     ];
 
     $scope.selectedTab = $scope.tabs[0];
@@ -22,5 +22,8 @@
         } else {
             return '';
         }
+    }
+    $scope.isSet = function(tab){
+        return $scope.selectedTab.name === tab.name;
     }
 }]);

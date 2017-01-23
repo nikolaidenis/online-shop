@@ -1,6 +1,94 @@
 <ul class="nav nav-tabs responsive" id="mainTab">
-    <li ng-repeat="tab in tabs" role="presentation" heading="{{tab.label}}">
-        <a ui-sref="{{tab.route}}">{{tab.label}}</a>
+    <li ng-repeat="tab in tabs" role="presentation" class="tabClass(tab)">
+        <a href ng-click="setSelectedTab(tab)">{{tab.label}}</a>
     </li>
 </ul>
-<ui-view></ui-view>
+
+<div ng-controller="OperationsController">
+<div ng-show="isSet(tabs[0])">    
+    <div class="square" ng-repeat="product in products" >
+        {{product.name}}
+        {{product.cost}}
+        <input type="button" value="Buy" ng-click="purchase(product)"/>
+    </div>
+    <hr/>
+    <h2>Portfolio:</h2>
+    <p>{{user.username}}</p>
+    Balance:
+    <p>{{user.balance}}</p>
+    <p ng-repeat="product in products">
+        {{product.name}} - {{productCountList[product.id].length}} - <input type="button" value="Sell" ng-click="sellLastProduct(product.id)"/>
+    </p>
+    <input type="button" value="Fill balance" ng-click="chargeUserBalance(user.id)"/>
+    <div>
+        <canvas id="pie" class="chart chart-pie" style="height:150px;width:300px;"
+            chart-data="productData" chart-labels="productLabels" chart-options="options">
+        </canvas> 
+    </div>
+
+    
+
+    <div>
+        <p>Profit</p>
+        <div ng-repeat="obj in productProfitList">
+            <p> {{obj.productName}} : {{obj.profit}}$</p>
+        </div>
+    </div>
+
+</div>
+
+<div ng-show="isSet(tabs[1])">
+    <ul id="rows"></ul>
+    <ul id="pageNums"></ul>
+<script>
+    var rows_per_page = 5;
+    var total_rows;
+    var tempUser = 1;
+
+    function getRowsCount() {
+        $.get('api/operation/count_rows/'+tempUser, function(data) {
+            total_rows = parseInt(data.rows);
+            var count = 1;
+            for (var i = 0; i < total_rows; i += rows_per_page) {
+                $('#pageNums').append('<li><a href="#' + count + '" onclick="getPage(' + count + ');">' + count + '</a></li>');
+                count++;
+            }
+        });
+    }
+
+    function getPage(page_num) {
+        $('#rows').html('');
+        $.get('api/operation/' + tempUser + '/' + page_num + '/' + rows_per_page, function(data) {
+            $(data).each(function() {
+                $('#rows').append('<li>' + this.Id + '</li>');
+            });
+        });
+    }
+
+    $(document).ready(function () {
+        getRowsCount();
+
+        var page_num = 1;
+
+        if (window.location.hash !== '') {
+            var hash_num = parseInt(window.location.hash.substring(1));
+
+            if (hash_num > 0) {
+                page_num = hash_num;
+            }
+        }
+
+        getPage(page_num);
+    });
+
+</script>
+</div>
+
+<div>
+        <p>Recent Activities</p>
+        <div ng-repeat="obj in productStatisticList">
+            <p> {{obj.numBought}} items of {{obj.productName}} were bought</p>
+            <p> {{obj.numSold}} items of {{obj.productName}} were sold</p>
+        </div>
+    </div>
+</div>

@@ -21,7 +21,7 @@ shopApp.config([
                 controller: 'SignupController as signupCtrl'
             }).otherwise('/main');
 
-        $stateProvider.state('operations', {
+/*        $stateProvider.state('operations', {
             views:{
                 "":{
                     url: '/operations',
@@ -32,9 +32,8 @@ shopApp.config([
         }).state('archives', {
             url: '/archives',
             templateUrl: 'app/templates/archives.html'
-        });
-    }
-]);
+        });*/
+}]);
 
 shopApp.run(['$window', '$rootScope', '$location', 'localStorageService','AuthApi',
         function ($window, $rootScope, $location, localStorageService,AuthApi) {

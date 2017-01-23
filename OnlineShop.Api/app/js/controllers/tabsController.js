@@ -1,6 +1,5 @@
 ﻿angular.module("ShopApp")
-.controller('TabsController', ['$scope', '$state', function ($scope, $state) {
-    $state.current.name = 'main';
+.controller('TabsController', ['$scope', function ($scope) {
     $scope.tabs = [
         { name:'operations', label: 'Operations'},
         { name:'archives', label: 'Archive' }

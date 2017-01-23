@@ -12,20 +12,18 @@ using System.Web.Http.Filters;
 
 namespace OnlineShop.Api.Filters
 {
-    public class CustomAuthorize: Attribute, IAuthorizationFilter
+    public class CustomAuthorizeAttribute: ActionFilterAttribute
     {
-        public bool AllowMultiple { get; }
-
-        public Task<HttpResponseMessage> ExecuteAuthorizationFilterAsync(HttpActionContext actionContext, CancellationToken cancellationToken, Func<Task<HttpResponseMessage>> continuation)
+        public override Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
-            var principal = actionContext.RequestContext.Principal;
-            if (!principal.Identity.IsAuthenticated)
+            var authorization = actionContext.Request.Headers.Authorization;
+
+            if (authorization == null || authorization.Scheme != "Bearer")
             {
-                return Task.FromResult<HttpResponseMessage>(
-                       actionContext.Request.CreateResponse(HttpStatusCode.Unauthorized));
+                return Task.FromResult(0);
             }
-            return continuation();
+
+            return base.OnActionExecutingAsync(actionContext, cancellationToken);
         }
-        
     }
 }

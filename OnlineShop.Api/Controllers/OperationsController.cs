@@ -16,6 +16,7 @@ using OnlineShop.Infrastructure.Data;
 
 namespace OnlineShop.Api.Controllers
 {
+    [Authorize(Roles = "User")]
     public class OperationsController : BaseController
     {
         [Dependency]

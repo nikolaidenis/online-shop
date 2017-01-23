@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using AutoMapper;
 using Microsoft.Practices.Unity;
-using OnlineShop.Api.Filters;
 using OnlineShop.Api.Models;
 using OnlineShop.Core;
 using OnlineShop.Core.Data;
@@ -54,11 +53,5 @@ namespace OnlineShop.Api.Controllers
             var model = Mapper.Map<User, UserModel>(obj);
             return Request.CreateResponse(HttpStatusCode.OK, model);
         }
-
-//        [Route("api/user_auth")]
-//        public async Task<HttpResponseMessage> AuthenticateUser(AuthenticationModel model)
-//        {
-//            
-//        }
     }
 }

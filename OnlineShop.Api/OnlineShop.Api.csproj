@@ -251,7 +251,9 @@
     <Content Include="app\js\services\authenticationService.js" />
     <Content Include="app\js\constants.js" />
     <Content Include="app\templates\admin_window.html" />
+    <Content Include="app\templates\blockPage.html" />
     <Content Include="app\templates\general_window.html" />
+    <Content Include="app\templates\general_window_demo.html" />
     <Content Include="app\templates\signup.html" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />

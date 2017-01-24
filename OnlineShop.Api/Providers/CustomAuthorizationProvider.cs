@@ -59,7 +59,7 @@ namespace OnlineShop.Api.Providers
                 var principal = new GenericPrincipal(identity, roles.ToArray());
                 Thread.CurrentPrincipal = principal;
                 
-                var ticket = new AuthenticationTicket(identity,CreateProperties(context.UserName,identity));
+                var ticket = new AuthenticationTicket(identity,CreateProperties(context.UserName,identity, user.IsBlocked));
 
                 context.Validated(ticket);
             }
@@ -79,11 +79,12 @@ namespace OnlineShop.Api.Providers
             return Task.FromResult<object>(null);
         }
 
-        public static AuthenticationProperties CreateProperties(string userName, ClaimsIdentity oAuthIdentity)
+        public static AuthenticationProperties CreateProperties(string userName, ClaimsIdentity oAuthIdentity, bool isBlocked)
         {
             IDictionary<string, string> data = new Dictionary<string, string>
             {
-                {"userName", userName},
+                {"username", userName},
+                {"isBlocked", isBlocked.ToString()},
                 {
                     "role",
                     string.Join(",",

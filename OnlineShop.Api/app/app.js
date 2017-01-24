@@ -1,5 +1,5 @@
 ﻿var shopApp = angular.module("ShopApp", ["ngRoute",'ui.bootstrap','chart.js', "ShopApp.config", "ProductService", "OperationService",
-                                                        "UserService", "AuthInterceptorService", "AuthService", "LocalStorageModule"]);
+                                                        "UserService", "AuthInterceptorService", "AuthService", "LocalStorageModule", "IndexedDBService"]);
 
 shopApp.config([
     '$routeProvider', function ($routeProvider) {
@@ -9,8 +9,8 @@ shopApp.config([
                 templateUrl:  'app/templates/general_window.html'
             })
             .when('/main_demo', {
-                controller: 'MainDemoController',
-                templateUrl:  'app/templates/main.html'
+                controller: 'TabsController',
+                templateUrl:  'app/templates/general_window_demo.html'
             })
             .when('/login', {
                 templateUrl: 'app/templates/login.html',
@@ -18,6 +18,10 @@ shopApp.config([
             })
             .when('/admin_panel', {
                 templateUrl: 'app/templates/admin_window.html'
+            })
+            .when('/blocked', {
+                templateUrl: 'app/templates/blockPage.html',
+                controller: 'MainController as ctrl'
             })
             .when('/signup', {
                 templateUrl: 'app/templates/signup.html',
@@ -27,14 +31,17 @@ shopApp.config([
 
 shopApp.run(['$window', '$rootScope', '$location', 'localStorageService','AuthApi',
         function ($window, $rootScope, $location, localStorageService,AuthApi) {
-            AuthApi.fillIdentityInfo();  
+            AuthApi.fillIdentityInfo();
 
-            $rootScope.$on('$routeChangeStart', function(){
+            $rootScope.$on('$routeChangeStart', function(){   
+                if(AuthApi.user.isBlocked){
+                    $location.path('/blocked');
+                    return;
+                }             
                 if(AuthApi.user.role){
                     switch(AuthApi.user.role){
                         case 'Admin': $location.path('/admin_panel'); break;
-                        case 'User': $location.path('/main'); break;
-                        default: $location.path('/main_demo'); break;
+                        default: $location.path('/main'); break;
                     }
                 }
             });

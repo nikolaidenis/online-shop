@@ -1,20 +1,47 @@
 ﻿    angular.module("ShopApp")
         .controller('OperationsController', [
             '$scope', '$rootScope', 'ProductApi', 'OperationApi', 'AuthApi', 'UserApi', '$q',
-            function($scope, $rootScope,ProductApi, OperationApi, AuthApi, UserApi, $q) {
+            function($scope, $rootScope, ProductApi, OperationApi, AuthApi, UserApi, $q) {
+                
                 var scope = $scope;
 
-                scope.productCountList = [];
-
+                scope.operationsList = [];
                 scope.productStatisticList = {};    
-                scope.productProfitList = {};            
-
-                scope.chart = {};
+                scope.productProfitList = {};
                 scope.products = [];
 
-                var userId = AuthApi.user.id;
-
                 init();
+
+                function init() {
+                    getAllProducts(function(){   
+                        getUser();
+                        getUserOperations(function(){                            
+                            countOperations();          
+                            drawCanvas();
+                        });                              
+                        enableHub();
+                        initializeStatistic();
+                        initializeProfit();
+                    });
+                };
+
+                function updateUserData() {
+                    getUser();
+                    getUserOperations(function(){                            
+                        countOperations();          
+                        drawCanvas();
+                    });                
+                };
+
+                function enableHub(){
+                    scope.prodHub = $.connection.customHub; 
+                    scope.prodHub.client.updateCosts = function () {
+                        getAllProducts(function(){
+                            $rootScope.$apply();
+                        });                        
+                    };
+                    $.connection.hub.start();
+                };
 
                 function initializeProfit(){
                     for(var i=0; i<scope.products.length; i++){
@@ -36,31 +63,18 @@
                         scope.productStatisticList[scope.products[i].id] = obj;
                     }
                 };
-
                 
-                scope.trackSold = function(productId){
+                function trackSold(productId){
                     ++scope.productStatisticList[productId].numSold;
                 };
-                scope.trackBought = function(productId){
+
+                function trackBought(productId){
                     ++scope.productStatisticList[productId].numBought;
                 };
 
-                scope.countProfit = function(productId, productCost){
+                function countProfit(productId, productCost){
                     var obj = scope.getProduct(productId);
                     scope.productProfitList[productId].profit += obj.cost - productCost;
-                };
-
-                function init(){
-                    getAllProducts(function(){   
-                        getUser();
-                        getUserOperations(function(){                            
-                            countOperations();          
-                            drawCanvas();
-                        });                              
-                        enableHub();
-                        initializeStatistic();
-                        initializeProfit();
-                    });
                 };
 
                 function drawCanvas(){
@@ -69,31 +83,13 @@
                     for(var i = 0; i <scope.products.length; i++){
                         scope.productLabels.push(scope.products[i].name);
                         var id = scope.products[i].id;
-                        scope.productData.push(scope.productCountList[id].length);
+                        scope.productData.push(scope.operationsList[id].length);
                     }
                         
                     scope.options =  {
                           responsive: false,
                           maintainAspectRatio: false
                         }
-                };
-
-                function updateUserData() {
-                    getUser();
-                    getUserOperations(function(){                            
-                        countOperations();          
-                        drawCanvas();
-                    });                
-                };
-
-                function enableHub(){
-                    scope.prodHub = $.connection.customHub; 
-                    scope.prodHub.client.updateCosts = function () {
-                        getAllProducts(function(){
-                            $rootScope.$apply();
-                        });                        
-                    };
-                    $.connection.hub.start();
                 };
 
                 function getAllProducts(callback) {
@@ -112,6 +108,9 @@
                         });
                 };
 
+
+
+
                 scope.getProduct = function(id){
                     for(var i = 0; i < scope.products.length; i++){
                         if(scope.products[i].id === id){
@@ -122,7 +121,7 @@
 
                 function getUser() {
                     var defer = $q.defer();
-                    UserApi.getUserData(userId).success(function(user) {
+                    UserApi.getUserData(AuthApi.getUserId()).success(function(user) {
                         scope.user = user;
                         defer.resolve(user);
                         return defer.promise;
@@ -135,7 +134,7 @@
 
                 function getUserOperations(callback) {
                     var defer = $q.defer();
-                    OperationApi.getOperations(userId).success(function(operations) {
+                    OperationApi.getOperations(AuthApi.getUserId()).success(function(operations) {
                         scope.operations = operations;
                         defer.resolve(operations);
                         callback();
@@ -157,34 +156,8 @@
                                 collection.push(scope.operations[i]);
                             }
                         }
-                        scope.productCountList[id] = collection;
+                        scope.operationsList[id] = collection;
                     }
-                };
-
-                scope.purchase = function(product) {
-                    var purchaseObj = {
-                        'UserId': userId,
-                        'ProductId': product.id,
-                        'Amount': product.cost,
-                        'IsSelled': false
-                    }
-                    var paymentObj = {
-                        'UserId': userId,
-                        'Amount': product.cost
-                    }
-                    UserApi.debitBalance(paymentObj).then(
-                        function() {
-                            OperationApi.postPurchase(purchaseObj).success(function() {
-                                scope.trackBought(product.id);
-                                updateUserData();
-                                alert("Purchase completed");
-                            }).error(function(error) {
-                                alert("Something is wrong: " + error.Message);
-                            });
-                        }, function() {
-                            alert("Payment is wrong");
-                        }
-                    );
                 };
 
                 scope.chargeUserBalance = function() {
@@ -197,7 +170,7 @@
                         return;
                     }
                     var payment = {
-                        'UserId': userId,
+                        'UserId': AuthApi.getUserId(),
                         'Amount': amount
                     }
 
@@ -207,6 +180,32 @@
                     }, function() {
                         alert("Charge invalid!");
                     });
+                };
+
+                scope.purchase = function(product) {
+                    var purchaseObj = {
+                        'UserId': AuthApi.getUserId(),
+                        'ProductId': product.id,
+                        'Amount': product.cost,
+                        'IsSelled': false
+                    }
+                    var paymentObj = {
+                        'UserId': AuthApi.getUserId(),
+                        'Amount': product.cost
+                    }
+                    UserApi.debitBalance(paymentObj).then(
+                        function() {
+                            OperationApi.postPurchase(purchaseObj).success(function() {
+                                trackBought(product.id);
+                                updateUserData();
+                                alert("Purchase completed");
+                            }).error(function(error) {
+                                alert("Something is wrong: " + error.Message);
+                            });
+                        }, function() {
+                            alert("Payment is wrong");
+                        }
+                    );
                 };
 
                 scope.sellLastProduct = function(productId) {
@@ -221,9 +220,9 @@
                                 .success(function() {
                                     OperationApi.postSale(scope.operations[i])
                                         .success(function() {
-                                            scope.trackSold(productId);
                                             updateUserData();
-                                            scope.countProfit(productId, scope.operations[i].amount);
+                                            trackSold(productId);
+                                            countProfit(productId, scope.operations[i].amount);
                                             alert("Sell succeed!");
                                         })
                                         .error(function() {
@@ -235,7 +234,12 @@
                             return;
                         }
                     }
+                    alert("Problem with selling item, cancelling...");
                 };
 
+                scope.logout = function () {
+                    AuthApi.logout();
+                    $window.location.reload();
+                };
             }
         ]);

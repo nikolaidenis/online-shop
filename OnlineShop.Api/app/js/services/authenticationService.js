@@ -5,6 +5,7 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
 
     authServiceFactory.user = {
         isAuthenticated: false,
+        isBlocked:false,
         name: "",
         role:"",
         id: 0
@@ -24,15 +25,20 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
             && authServiceFactory.user.id !== 0;
     };
 
-
-    authServiceFactory.setAuthenticatedUser = function (username, role) {
+    authServiceFactory.setAuthenticatedUser = function (username, role, isBlocked) {
         authServiceFactory.user.isAuthenticated = true;
         authServiceFactory.user.name = username;
         authServiceFactory.user.role = role;
+        authServiceFactory.user.isBlocked = isBlocked;
+        
     };
+
     authServiceFactory.setUnauthenticatedUser = function () {
-        authServiceFactory.user.isAuthenticated = false;
-        authServiceFactory.user.name = "";
+        authServiceFactory.user.isAuthenticated= false;
+        authServiceFactory.user.isBlocked=false;
+        authServiceFactory.user.name= "";
+        authServiceFactory.user.role="";
+        authServiceFactory.user.id= 0;
     };
 
     authServiceFactory.register = function (userInfo) {
@@ -49,13 +55,14 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
             .then(function (response) {
                 localStorageService.add('authorizationData', { token: response.data.access_token, username: userData.userName, role: response.data.role });
                 authServiceFactory.fillIdentityInfo().then(function () {
-                    authServiceFactory.setAuthenticatedUser(userData.userName,response.data.role);
+                    authServiceFactory.setAuthenticatedUser(userData.userName,response.data.role, response.data.isBlocked === "True" ? true:false);
                     alert('Login success');
                     deffer.resolve(response);
                 }, function(error) {
                     alert('Could not find additional info about user. Abort..');
                     localStorageService.remove('authorizationData');
                     authServiceFactory.setUnauthenticatedUser();
+                    defer.reject();
                 });
             }, function (error) {
                 alert('Authorization fails');
@@ -64,23 +71,26 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
         );
 
         return deffer.promise;
-    }
+    };
 
     authServiceFactory.logout = function () {
         localStorageService.remove('authorizationData');
         authServiceFactory.setUnauthenticatedUser();
-    }
+    };
 
     authServiceFactory.fillIdentityInfo = function () {
         var deffer = $q.defer();
         var data = localStorageService.get('authorizationData');
         if (data) {
             $http.get(AppVariables.base_url + '/account/' + data.username)
-                .then(function(response) {
-                    authServiceFactory.setUserId(response.data);
-                    authServiceFactory.setAuthenticatedUser(data.username, data.role);
+                .success(function(response) {
+                    data.role = response.role;
+                    authServiceFactory.refreshStorageToken(data);
+                    authServiceFactory.setUserId(response.id);
+                    authServiceFactory.setAuthenticatedUser(data.username, data.role, response.blocked);
                     deffer.resolve(response);
-                }, function(error) {
+                })
+                .error(function(error) {
                     alert('Authorization fails');
                     deffer.reject();
                 });
@@ -88,8 +98,14 @@ app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', fu
             authServiceFactory.setUnauthenticatedUser();
             deffer.reject();
         }
+
         return deffer.promise;
-    }
+    };
+
+    authServiceFactory.refreshStorageToken = function(data){
+        localStorageService.remove('authorizationData');
+        localStorageService.add('authorizationData', data);
+    };
 
     return authServiceFactory;
 }]);

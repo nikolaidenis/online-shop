@@ -1,5 +1,8 @@
 ﻿angular.module("ShopApp")
-.controller('TabsController', ['$scope', function ($scope) {
+.controller('TabsController', ['$scope', 'AuthApi', function ($scope, AuthApi) {
+
+    $scope.isBlocked = AuthApi.user.isBlocked;
+
     $scope.tabs = [
         { name:'operations', label: 'Operations'},
         { name:'archives', label: 'Archive' }

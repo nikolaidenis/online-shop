@@ -1,19 +1,35 @@
 ﻿angular.module("ShopApp")
     .controller('MainDemoController', [
-        '$rootScope', 'ProductApi', 'OperationApi', 'AuthApi', 'UserApi', '$q',
-        function ($rootScope, ProductApi, OperationApi, AuthApi, UserApi, $q) {
+        '$rootScope', 'ProductApi',  '$q', 'DBInterfaceApi',
+        function ($rootScope, ProductApi, $q, DBInterfaceApi) {
 
             var vm = this;
 
             vm.productCountList = [];
-
             vm.productStatisticList = {};
             vm.productProfitList = {};
-
             vm.products = [];
 
-            var userId = AuthApi.user.id;
+            init();
 
+            function init() {
+                initDB(function(){
+                    getAllProducts(function () {                        
+                        updateUser();
+                        initializeUser();
+                        initializeStatistic();
+                        initializeProfit();
+                        enableHub();                    
+                    });
+                });
+            };
+
+            function updateUser(){
+                getOperations(function(){
+                    countOperations();
+                    drawCanvas();
+                });
+            };
 
             function initializeProfit() {
                 for (var i = 0; i < vm.products.length; i++) {
@@ -36,48 +52,45 @@
                 }
             };
 
-
-            vm.trackSold = function (productId) {
+            function trackSold(productId) {
                 ++vm.productStatisticList[productId].numSold;
             };
-            vm.trackBought = function (productId) {
+
+            function trackBought(productId) {
                 ++vm.productStatisticList[productId].numBought;
             };
 
-            vm.countProfit = function (productId, productCost) {
+            function countProfit(productId, productCost) {
                 var obj = vm.getProduct(productId);
                 vm.productProfitList[productId].profit += obj.cost - productCost;
             };
-
-            function init() {
-                getAllProducts(function () {
-                    initializeUser();
-                    enableHub();
-                    
-                });
-            };
-
-            function updateUser(){
-                countOperations();
-                drawCanvas();
-                initializeStatistic();
-                initializeProfit();
-            }
 
             function initMoney() {
                 if(vm.user){
                     vm.user.balance = 10000000;
                 }
-            }
+            };
+
+            function initializeUser() {
+                var defer = $q.defer();
+                vm.user = {};
+                initMoney();
+                defer.resolve();
+
+                return defer.promise;
+            };
 
             function chargeBalance(value){
                 var defer = $q.defer();
                 if(vm.user){
-                    defer.resolve();
-                    vm.user.balance += value;
+                    vm.user.balance += parseInt(value);
+                    defer.resolve(true);
+                }else{
+                    defer.reject();
                 }
+
                 return defer.promise;
-            }
+            };
 
             function debitBalance(value){
                 var defer = $q.defer();
@@ -87,8 +100,9 @@
                 }else{
                     defer.reject();
                 }
+
                 return defer.promise;
-            }
+            };
 
             function drawCanvas() {
                 vm.productLabels = [];
@@ -98,24 +112,57 @@
                     var id = vm.products[i].id;
                     vm.productData.push(vm.productCountList[id].length);
                 }
-
                 vm.options = {
                     responsive: false,
                     maintainAspectRatio: false
                 }
             };
 
-            function updateUserData() {
-                getUserOperations(function () {
-                    updateUser();                    
-                });
+            function refreshOperations(){
+                var defer = $q.defer();
+                DBInterfaceApi.getOperations()
+                    .then(function(data){
+                        vm.operations=data;
+                        defer.resolve(data);
+                    }, function(err){
+                        $window.alert(err);
+                        defer.reject();
+                    });
+
+                return defer.promise;
             };
+                   
+            function putOperation(obj){
+                var defer = $q.defer();
+                DBInterfaceApi.putOperation(obj)
+                    .then(function(){
+                        refreshOperations();
+                        defer.resolve(true);
+                    }, function(err){
+                        $window.alert(err);
+                        defer.reject();
+                    });
+
+                return defer.promise;
+            };
+
+            function initDB(fn){
+                var defer = $q.defer();
+                DBInterfaceApi.open().then(function(){
+                    defer.resolve(true);
+                    fn();
+                }, function(){
+                    defer.reject();
+                });
+
+                return defer.promise;
+            };   
 
             function enableHub() {
                 vm.prodHub = $.connection.customHub;
                 vm.prodHub.client.updateCosts = function () {
                     getAllProducts(function () {
-                        $rootvm.$apply();
+                        $rootScope.$apply();
                     });
                 };
                 $.connection.hub.start();
@@ -143,24 +190,17 @@
                         return vm.products[i];
                     }
                 }
-            }
-
-            function initializeUser() {
-                var defer = $q.defer();
-                vm.user = {};
-                initMoney();
-                defer.resolve();
-                return defer.promise;
             };
 
-            function getUserOperations(callback) {
+
+            function getOperations(callback) {
                 var defer = $q.defer();
-                refreshOperations().success(function (operations) {
+                refreshOperations().then(function (operations) {
                     vm.operations = operations;
                     defer.resolve(operations);
                     callback();
                     return defer.promise;
-                }).error(function (error) {
+                },function (error) {
                     vm.status = "Unable to retrieve operations data: " + error.Message;
                     defer.reject();
                     return defer.promise;
@@ -172,8 +212,8 @@
                     var collection = [];
                     var id = vm.products[productIndex].id;
                     for (var i = 0; i < vm.operations.length; i++) {
-                        if (vm.operations[i].productId === id
-                            && vm.operations[i].isSelled == false) {
+                        if (vm.operations[i].ProductId === id
+                            && vm.operations[i].IsSelled == false) {
                             collection.push(vm.operations[i]);
                         }
                     }
@@ -181,24 +221,24 @@
                 }
             };
 
-
-
-
             vm.purchase = function (product) {
                 var purchaseObj = {
+                    'Id':0,
                     'ProductId': product.id,
                     'Amount': product.cost,
-                    'IsSelled': false
-                }
+                    'IsSelled': false,
+                    'Quantity':1,
+                    'Date': Date.now()
+                };
 
                 debitBalance(product.cost).then(
                     function () {
-                        addOperation(purchaseObj).success(function () {
-                            vm.trackBought(product.id);
-                            updateUserData();
+                        putOperation(purchaseObj).then(function () {
+                            trackBought(product.id);
+                            updateUser();
                             alert("Purchase completed");
-                        }).error(function (error) {
-                            alert("Something is wrong: " + error.Message);
+                        },function () {
+                            alert("Something is wrong");
                         });
                     }, function () {
                         alert("Payment is wrong");
@@ -206,86 +246,29 @@
                 );
             };
 
-
-
-
-            vm.chargeUserBalance = function () {
-                var amount = prompt("Enter amount:", "0");
-                if (!amount) {
-                    return;
-                }
-                if (!amount.match(/^\d+$/)) {
-                    alert("Numbers only!");
-                    return;
-                }
-
-                chargeBalance(amount).then(function () {
-                    getUser();
-                    alert("Balance charged! Yeaaaa");
-                }, function () {
-                    alert("Charge invalid!");
-                });
-            };
-
             vm.sellLastProduct = function (productId) {
                 for (var i = vm.operations.length - 1; i >= 0; i--) {
-                    if (vm.operations[i].productId === productId
-                        && vm.operations[i].isSelled == false) {
-                        var payment = {
-                            'UserId': vm.operations[i].userID,
-                            'Amount': vm.operations[i].amount
-                        }
-                        UserApi.chargeBalance(payment)
-                            .success(function () {
-                                OperationApi.postSale(vm.operations[i])
-                                    .success(function () {
-                                        vm.trackSold(productId);
-                                        updateUserData();
-                                        vm.countProfit(productId, vm.operations[i].amount);
+                    if (vm.operations[i].ProductId === productId
+                        && vm.operations[i].IsSelled == false) {
+                        chargeBalance(vm.operations[i].Amount)
+                            .then(function () {
+                                vm.operations[i].IsSelled = true;
+                                putOperation(vm.operations[i])
+                                    .then(function () {
+                                        trackSold(productId);
+                                        updateUser();
+                                        countProfit(productId, vm.operations[i].Amount);
                                         alert("Sell succeed!");
-                                    })
-                                    .error(function () {
+                                    },
+                                    function () {
                                         alert("Sell invalid!");
                                     });
-                            }).error(function (error) {
+                            },function (error) {
                                 alert("Error seling item: Returning money problem, " + error.Message);
                             });
                         return;
                     }
                 }
-            };
-
-
-
-
-
-            vm.refreshOperations = function(){
-                indexedDBDataSvc.getOperations().then(function(data){
-                    vm.productCountList=data;
-                }, function(err){
-                    $window.alert(err);
-                });
-            };
-                   
-                  vm.addOperation = function(obj){
-                    indexedDBDataSvc.addTodo(vm.todoText).then(function(){
-                      vm.refreshList();
-                      vm.todoText="";
-                    }, function(err){
-                      $window.alert(err);
-                    });
-                  };
-                   
-                  
-                   
-                  function initDB(){
-                    indexedDBDataSvc.open().then(function(){
-                      vm.refreshList();
-                    });
-                  }
-                   
-                  initDB();
-
-            init();
+            };                    
         }
     ]);

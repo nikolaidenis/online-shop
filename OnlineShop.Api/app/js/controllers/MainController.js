@@ -1,9 +1,10 @@
 ﻿angular.module("ShopApp")
-    .controller('MainController', ['$rootScope', '$window', 'AuthApi', function ($rootScope, $window, AuthApi) {
+    .controller('MainController', ['$location', 'AuthApi', function ($location, AuthApi) {
 //        $rootScope.isAuthenticated = AuthApi.authentication.isAuthenticated;
-
-        $rootScope.logout = function () {
+		var vm = this;
+        vm.isAuthenticated = AuthApi.user.id === 0 ? false : true;
+        vm.logout = function () {
             AuthApi.logout();
-            $window.location.reload();
+            $location.path('/login');
         };
 }]);

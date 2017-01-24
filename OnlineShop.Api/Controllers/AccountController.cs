@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using AutoMapper;
 using Microsoft.Practices.Unity;
 using OnlineShop.Api.Helpers;
 using OnlineShop.Api.Models;
@@ -52,8 +53,15 @@ namespace OnlineShop.Api.Controllers
                 return Request.CreateErrorResponse(HttpStatusCode.Unauthorized, "Missing username");
             }
             var user = await UnitOfWork.Users.GetUser(username);
-            
-            return user.Id != 0 ? Request.CreateResponse(HttpStatusCode.OK, user.Id) : new HttpResponseMessage(HttpStatusCode.Unauthorized);
+
+            Mapper.Initialize(expr => expr.CreateMap(typeof(User), typeof(AccountModel))
+                .ForMember("Username", options => options.MapFrom("UserName"))
+                .ForMember("Blocked", options => options.MapFrom("IsBlocked"))
+                .ForMember("EmailConfirmed", options => options.MapFrom("IsEmailConfirmed")));
+            var viewModel = Mapper.Map<User, AccountModel>(user);
+            viewModel.Role = (await UnitOfWork.Roles.GetRole(user.RoleId)).Name.Trim();
+
+            return user.Id != 0 ? Request.CreateResponse(HttpStatusCode.OK, viewModel) : new HttpResponseMessage(HttpStatusCode.Unauthorized);
         }
 
         [Route("api/account/logout")]

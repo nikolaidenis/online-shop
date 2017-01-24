@@ -1,12 +1,13 @@
 ﻿angular.module("ShopApp")
-    .controller('AdminController', ['$scope','$window', 'UserApi', function ($scope,$window, UserApi) {
+    .controller('AdminController', ['$scope','$window', 'UserApi', 'AuthApi', function ($scope,$window, UserApi, AuthApi) {
     
     $scope.accounts = [],
     $scope.filtered = [],
     $scope.currentPage = 1,
     $scope.numPerPage = 10,
     $scope.maxPaginationSize = 5;
-
+    
+    getAccounts();
 
     function getAccounts(){
     	var accounts = UserApi.getAccounts()
@@ -23,17 +24,6 @@
 		}
     }
 
-    getAccounts();
-
-  	$scope.$watch("accounts", function(){
-  		countPage();
-  	});
-
-  	$scope.$watch("currentPage + numPerPage", function() {
-	    	countPage();
-	});
-
-    
     $scope.changeLocking = function(account){
     	UserApi.changeUserLocking(account.username, !account.blocked)
     		.then(function(response){
@@ -42,7 +32,18 @@
     		}, function(error){
     			alert('Bad');
     		});
-    }
+        }
 
+    $scope.$watch("accounts", function(){
+        countPage();
+    });
 
+    $scope.$watch("currentPage + numPerPage", function() {
+            countPage();
+    });
+
+    $scope.logout = function () {
+        AuthApi.logout();
+        $window.location.reload();
+    };
 }]);

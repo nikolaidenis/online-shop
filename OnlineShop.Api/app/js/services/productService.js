@@ -4,6 +4,6 @@ srv.factory('ProductApi', ['$http', 'AppVariables', function ($http, AppVariable
     var ProductApi = {};
     ProductApi.getProducts = function() {
         return $http.get(AppVariables.base_url + '/product');
-    }
+    };
     return ProductApi;
 }]);

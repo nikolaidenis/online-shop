@@ -2,7 +2,7 @@
     .controller('LoginController', ['$scope', '$location', 'AuthApi', function ($scope, $location, AuthApi) {
 
         $scope.loginData = {
-            userName: "",
+            username: "",
             password: ""
         };
         
@@ -14,5 +14,4 @@
         		$location.path('/main');
         	});
         }
-
     }]);

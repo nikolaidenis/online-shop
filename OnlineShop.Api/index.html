@@ -11,7 +11,7 @@
 </head>
 
 <body>
-<div class="container">
+<div class="container" ng-controller="MainController as ctrl">
     <div ng-view></div>
 </div>
 
@@ -33,10 +33,12 @@
 <script src="app/js/controllers/adminController.js"></script>
 <script src="app/js/controllers/tabsController.js"></script>
 <script src="app/js/controllers/mainController.js"></script>
+<script src="app/js/controllers/mainDemoController.js"></script>
 <script src="app/js/controllers/operationsController.js"></script>
 <script src="app/js/controllers/archivesController.js"></script>
 <script src="app/js/controllers/signupController.js"></script>
 <script src="app/js/controllers/loginController.js"></script>
+<script src="app/js/services/indexedDBService.js"></script>
 <script src="app/js/services/operationService.js"></script>
 <script src="app/js/services/authenticationService.js"></script>
 <script src="app/js/services/productService.js"></script>

@@ -1,0 +1,47 @@
+﻿<ul class="nav nav-tabs responsive" id="mainTab">
+    <li ng-repeat="tab in tabs" role="presentation" class="tabClass(tab)">
+        <a href ng-click="setSelectedTab(tab)">{{tab.label}}</a>
+    </li>
+</ul>
+
+<div ng-controller="MainDemoController as ctrl">
+    <div ng-show="isSet(tabs[0])">
+        <div class="square" ng-repeat="product in ctrl.products">
+            {{product.name}}
+            {{product.cost}}
+            <input type="button" value="Buy" ng-click="ctrl.purchase(product)" />
+        </div>
+        <hr />
+        <h2>Portfolio:</h2>
+        Balance:
+        <p>{{ctrl.user.balance}}</p>
+        <p ng-repeat="product in ctrl.products">
+            {{product.name}} - {{ctrl.productCountList[product.id].length}} - <input type="button" value="Sell" ng-click="ctrl.sellLastProduct(product.id)" />
+        </p>
+        <div>
+            <canvas id="pie" class="chart chart-pie" style="height:150px;width:300px;"
+                    chart-data="ctrl.productData" chart-labels="ctrl.productLabels" chart-options="ctrl.options"></canvas>
+        </div>
+
+        <div>
+            <p>Profit</p>
+            <div ng-repeat="obj in ctrl.productProfitList">
+                <p> {{obj.productName}} : {{obj.profit}}$</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div ng-show="isSet(tabs[1])">
+        
+    </div>
+
+    <div>
+        <p>Recent Activities</p>
+        <div ng-repeat="obj in ctrl.productStatisticList">
+            <p> {{obj.numBought}} items of {{obj.productName}} were bought</p>
+            <p> {{obj.numSold}} items of {{obj.productName}} were sold</p>
+        </div>
+    </div>
+
+</div>

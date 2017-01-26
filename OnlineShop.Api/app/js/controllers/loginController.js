@@ -1,5 +1,5 @@
 ﻿angular.module("ShopApp")
-    .controller('LoginController', ['$scope', '$location', 'AuthApi', function ($scope, $location, AuthApi) {
+    .controller('LoginController', ['$scope', '$state', 'AuthApi', function ($scope, $state, AuthApi) {
 
         $scope.loginData = {
             username: "",
@@ -11,7 +11,7 @@
         $scope.submit = function(){
         	AuthApi.login($scope.loginData)
             .then(function(response){
-        		$location.path('/main');
+        		$state.go('main');
         	});
         }
     }]);

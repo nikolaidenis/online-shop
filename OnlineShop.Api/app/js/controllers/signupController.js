@@ -1,5 +1,5 @@
 angular.module("ShopApp")
-    .controller('SignupController', ['$scope', '$location', 'AuthApi', function ($scope, $location, AuthApi) {
+    .controller('SignupController', ['$scope', '$state', 'AuthApi', function ($scope, $state, AuthApi) {
 
         $scope.signupData = {
             userName: "",
@@ -18,7 +18,7 @@ angular.module("ShopApp")
         	}
         	AuthApi.register($scope.signupData).then(function(response){
         		alert('Please, check your inbox for confirmation email');  
-        		$location.path('/');      		
+        		$state.go('/login');      		
         	}, function(error){        		//toDo:
         		$scope.message = error.Message;
         	});

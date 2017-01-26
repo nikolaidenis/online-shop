@@ -1,10 +1,11 @@
 ﻿    angular.module("ShopApp")
         .controller('OperationsController', [
             '$scope', '$rootScope', 'ProductApi', 'OperationApi', 'AuthApi', 'UserApi', '$q',
-            function($scope, $rootScope, ProductApi, OperationApi, AuthApi, UserApi, $q) {
+            function($scope, $rootScope, ProductApi, OperationApi, AuthApi, UserApi, $q, user) {
                 
                 var scope = $scope;
 
+                scope.user = user;
                 scope.operationsList = [];
                 scope.productStatisticList = {};    
                 scope.productProfitList = {};

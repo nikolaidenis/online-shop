@@ -33,6 +33,11 @@ namespace OnlineShop.Infrastructure.Data
             return new UnitOfWork(connectionString);
         }
 
+        public string GetConnectionString()
+        {
+            return Context.Database.Connection.ConnectionString;
+        }
+
         public DbContext GetContext()
         {
             return Context;

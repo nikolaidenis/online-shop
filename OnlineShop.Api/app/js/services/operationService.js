@@ -1,4 +1,4 @@
-﻿var srv = angular.module('OperationService', ["ShopApp.config"]);
+﻿var srv = angular.module('ShopApp.Main', ["ShopApp.Constants"]);
 
 srv.factory('OperationApi', ['$http', 'AppVariables', function ($http, AppVariables) {
     var OperationApi = {};

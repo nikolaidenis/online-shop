@@ -27,12 +27,10 @@ namespace OnlineShop.Api
             var config = new HttpConfiguration();
             WebApiConfig.Register(config);
             ConfigureOAuth(app, config);
-            app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
+            app.UseCors(CorsOptions.AllowAll);
             app.UseWebApi(config);
-            //            SqlDependency.Start(ConfigurationManager.ConnectionStrings["OnlineShopEntities"].ConnectionString);
-
             ConfigureDependencyHandler(config);
-            OnShutdown(app);
+            OnShutdown(app, config);
         }
 
         public void ConfigureOAuth(IAppBuilder app, HttpConfiguration config)
@@ -54,18 +52,19 @@ namespace OnlineShop.Api
         private void ConfigureDependencyHandler(HttpConfiguration config)
         {
             var uof = (UnitOfWork)config.DependencyResolver.GetService(typeof(IUnitOfWork));
-            SqlDependencyHandler.Register(uof.GetContext().Database.Connection.ConnectionString);
+            SqlDependencyHandler.Register(uof.GetConnectionString());
         }
 
-        public void OnShutdown(IAppBuilder app)
+        public void OnShutdown(IAppBuilder app, HttpConfiguration config)
         {
             var context = new OwinContext(app.Properties);
             var token = context.Get<CancellationToken>("host.OnAppDisposing");
             if (token != CancellationToken.None)
             {
+                var uof = (UnitOfWork)config.DependencyResolver.GetService(typeof(IUnitOfWork));
                 token.Register(() =>
                 {
-                    SqlDependency.Stop(ConfigurationManager.ConnectionStrings["OnlineShopEntities"].ConnectionString);
+                    SqlDependency.Stop(uof.GetConnectionString());
                 });
             }
         }

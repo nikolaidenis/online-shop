@@ -1,4 +1,4 @@
-﻿var app = angular.module('IndexedDBService', ['ShopApp.config']);
+﻿var app = angular.module('ShopApp.Demo', ['ShopApp.Constants']);
 app.factory('DBInterfaceApi', ['$window', '$q', function($window, $q) {
 	var factory = {};
 

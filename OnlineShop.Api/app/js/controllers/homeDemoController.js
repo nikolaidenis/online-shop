@@ -1,4 +1,4 @@
-﻿angular.module("ShopApp")
+﻿angular.module("ShopApp.Demo")
     .controller('MainDemoController', [
         '$rootScope', 'ProductApi',  '$q', 'DBInterfaceApi',
         function ($rootScope, ProductApi, $q, DBInterfaceApi) {
@@ -184,15 +184,6 @@
                     });
             };
 
-            vm.getProduct = function (id) {
-                for (var i = 0; i < vm.products.length; i++) {
-                    if (vm.products[i].id === id) {
-                        return vm.products[i];
-                    }
-                }
-            };
-
-
             function getOperations(callback) {
                 var defer = $q.defer();
                 refreshOperations().then(function (operations) {
@@ -218,6 +209,14 @@
                         }
                     }
                     vm.productCountList[id] = collection;
+                }
+            };
+
+            vm.getProduct = function (id) {
+                for (var i = 0; i < vm.products.length; i++) {
+                    if (vm.products[i].id === id) {
+                        return vm.products[i];
+                    }
                 }
             };
 

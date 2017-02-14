@@ -1,4 +1,4 @@
-var app = angular.module("AuthService", ["ShopApp.config"]);
+var app = angular.module("ShopApp.Auth", ["ShopApp.Constants"]);
 
 app.factory('AuthApi', ['$http', '$q', 'AppVariables', 'localStorageService', function ($http, $q, AppVariables, localStorageService) {
     var authServiceFactory = {};

@@ -1,10 +1,19 @@
-﻿angular.module("ShopApp")
-    .controller('MainController', ['$state', 'AuthApi', function ($state, AuthApi) {
-//        $rootScope.isAuthenticated = AuthApi.authentication.isAuthenticated;
-		var vm = this;
+﻿(function() {
+    'use strict';
+    angular.module('ShopApp.Main')
+        .controller('MainController', MainController);
+
+    MainController.$injector = ['$location', 'AuthApi'];
+
+    function MainController($location, AuthApi) {
+        var vm = this;
+
+        vm.logout = logout;
         vm.isAuthenticated = AuthApi.user.id === 0 ? false : true;
-        vm.logout = function () {
+
+        function logout() {
             AuthApi.logout();
-            $state.go('login');
+            $location.path('/login');
         };
-}]);
+    }
+})();

@@ -1,4 +1,4 @@
-angular.module("ShopApp")
+angular.module("ShopApp.Auth")
     .controller('SignupController', ['$scope', '$state', 'AuthApi', function ($scope, $state, AuthApi) {
 
         $scope.signupData = {

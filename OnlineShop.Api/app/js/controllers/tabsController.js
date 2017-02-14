@@ -1,4 +1,4 @@
-﻿angular.module("ShopApp")
+﻿angular.module("ShopApp.Main")
 .controller('TabsController', ['$scope', 'AuthApi', function ($scope, AuthApi) {
 
     $scope.isBlocked = AuthApi.user.isBlocked;

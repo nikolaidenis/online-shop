@@ -1,38 +1,36 @@
-<input type="button" ng-click="ctrl.logout()" value="Logout" />
-
-<div ng-controller="AdminController">
+<div>
 	<p>Admin panel</p>
 	<p>Total accounts: {{accounts.length}}</p>
-	<table class="table table-striped">
-		<thead>
-			<tr>
-				<td>Username</td>
-				<td>Email</td>
-				<td>Email confirmation</td>
-				<td>Blocked</td>
-			</tr>
-		</thead>
-		<tbody>
-			<tr ng-repeat="obj in filtered">
-				<td>
-					{{obj.username}}
-				</td>
-				<td>
-					{{obj.email}}
-				</td>
-				<td>
-					{{obj.emailConfirmed}}
-				</td>
-				<td>
-					{{obj.blocked}}
-				</td>
-				<td>
-					<input type="button" style="width: 70px;" name="changeLocking" value="{{obj.blocked ? 'Unlock' : 'Lock'}}" ng-click="changeLocking(obj)"/>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-	<ul uib-pagination total-items="accounts.length" ng-model="currentPage" max-size="maxPaginationSize" ng-change="" boundary-links="true">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <td>Username</td>
+            <td>Email</td>
+            <td>Email confirmation</td>
+            <td>Blocked</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="obj in filtered">
+            <td>
+                {{obj.username}}
+            </td>
+            <td>
+                {{obj.email}}
+            </td>
+            <td>
+                {{obj.emailConfirmed}}
+            </td>
+            <td>
+                {{obj.blocked}}
+            </td>
+            <td>
+                <input type="button" style="width: 70px;" name="changeLocking" value="{{obj.blocked ? 'Unlock' : 'Lock'}}" ng-click="changeLocking(obj)"/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 
+	<ul uib-pagination total-items="accounts.length" ng-model="currentPage" max-size="maxPaginationSize" ng-change="" boundary-links="true">
 	</ul>
 </div>

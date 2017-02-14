@@ -1,4 +1,4 @@
-﻿var app = angular.module('AuthInterceptorService', ['ShopApp.config']);
+﻿var app = angular.module('ShopApp.Auth', ['ShopApp.Constants']);
 
 app.factory('InterceptorApi', ['$q', '$injector', '$location', 'localStorageService',function($q,$injector, $location,localStorageService){	
 	var InterceptorApi = {};

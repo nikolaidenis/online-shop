@@ -1,77 +1,78 @@
-﻿var shopApp = angular.module("ShopApp", ["ngRoute",'ui.bootstrap','ui.router', 'chart.js', "ShopApp.config", "ProductService", "OperationService",
-                                                        "UserService", "AuthInterceptorService", "AuthService", "LocalStorageModule", "IndexedDBService"]);
+﻿(function () {
+    'use strict';
 
-shopApp.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $urlRouterProvider) {
-        $stateProvider
-            .state('main',{
-                url: '/',
+    angular.module("ShopApp", ["ngRoute", 'ui.bootstrap', 'chart.js', "ShopApp.Constants", "ShopApp.Main", "ShopApp.Demo", "ShopApp.Auth"])
+        .config(configuration)
+        .run(run);
+
+    configuration.$injector = ['$routeProvider'];
+    run.$injector = ['$window', '$rootScope', 'localStorageService', 'AuthApi'];
+
+
+    function configuration($routeProvider) {
+        $routeProvider
+            .when('/', {
+                controller: 'TabsController as ctrl',
+                templateUrl: 'app/templates/shopPage.html',
+                roles: ["User"]
+            })
+            .when('/demo', {
                 controller: 'TabsController',
-                templateUrl:  'app/templates/shopPage.html',
-                resolve:{
-                    user: function($state, AuthApi){
-                    AuthApi.fillIdentityInfo().then(function(){
-                        if(AuthApi.user.isBlocked){
-                            $state.go('block');
-                        }
-                    });
-                }
-            }
+                templateUrl: 'app/templates/shopDemoPage.html'
             })
-            .state('demo',{
-                url:'/demo',
-                controller: 'TabsController',
-                templateUrl:  'app/templates/shopDemoPage.html'
+            .when('/admin_panel', {
+                url: '/admin_panel',
+                controller: 'AdminController as ctrl',
+                templateUrl: 'app/templates/adminPage.html',
+                roles: ["Admin"]
             })
-            .state('admin',{
-                url:'/admin_panel', 
-                templateUrl: 'app/templates/adminPage.html'
-            })
-            .state('block',{
-                url:'/blocked',
+            .when('/blocked', {
                 templateUrl: 'app/templates/blockPage.html',
-                controller: 'MainController as ctrl',
-                redirectTo: 'login',
-                resolve:{
-                    auth: function(AuthApi, $q){
-                        var defer = $q.defer();
-                        AuthApi.user.isBlocked ? defer.resolve():defer.reject({message:"rejected"});
-                        return defer.promise;
-                    }
-                }
-            })
-            .state('login',{
-                url:'/login',
-                templateUrl: 'app/templates/loginPage.html',
-                controller: 'LoginController as loginCtrl',
-                resolve: {
-                    security: function(localStorageService, $state){
-                        var data = localStorageService.get('authorizationData');
-                        if(data){
-                            if(data.role === 'User'){
-                                $state.go('main');
-                            }else if(data.role === 'Admin'){
-                                $state.go('admin');
-                            }                            
-                        }
-                    }
-                }
-            })
-            .state('signup',{
-                url:'/signup',
-                templateUrl: 'app/templates/signupPage.html',
-                controller: 'SignupController as signupCtrl'
-            });
-        $urlRouterProvider.otherwise('login');
-}]);
+                controller: 'MainController as ctrl'
 
-shopApp.run(['$window', '$rootScope', '$state', 'localStorageService','AuthApi',
-    function ($window, $rootScope, $state, localStorageService,AuthApi) {
+            })
+            .when('/login', {
+                templateUrl: 'app/templates/loginPage.html',
+                controller: 'LoginController as ctrl'
+            })
+            .when('/signup', {
+                templateUrl: 'app/templates/signupPage.html',
+                controller: 'SignupController as ctrl'
+            })
+            .when('/notFound', {
+                templateUrl: 'app/templates/notFoundPage.html'
+            })
+            .otherwise({
+                redirectTo: '/login'
+            });
+    };
+
+    function run($window, $rootScope, localStorageService, AuthApi) {
         AuthApi.fillIdentityInfo();
 
-        $rootScope.$on('$stateChangeError', function(evt, to, toParams, from, fromParams, error) {
-            if (error) {
-                $state.go(to.redirectTo);
+        $rootScope.$on('$routeChangeStart', function (event, next, current) {
+            var roles = next.$$route ? next.$$route.roles : [];
+
+            var checkResult = false;
+            next.resolve = angular.extend(next.resolve || {}, {
+                __authenticating__: authenticate
+            });
+            $rootScope.$evalAsync(function () {
+                $location.path("/notFound");
+            });
+            function authenticate() {
+                var deferred = $q.defer();
+                session.getAuthUserInfo.then(function (result) {
+                    roles.forEach(function (item, i, arr) {
+                        checkResult = checkResult || (result.data.roles.map(function (elem) { return elem.name; }).indexOf(item) !== -1);
+                    });
+                    if (roles.length !== 0 && !checkResult) {
+
+                    }
+                    deferred.resolve();
+                });
+                return deferred.promise;
             }
         });
-    }
-]);
+    };
+})();
